@@ -1,0 +1,51 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 语法检查
+        run: |
+          set -e
+          for f in src/*.js plugins/*.js build/*.mjs skill/scripts/*.mjs; do
+            node --check "$f"
+          done
+          echo "全部通过"
+
+      - name: 模板必须与库同步
+        run: node skill/scripts/sync-template.mjs --check
+
+      - name: 单文件产物必须最新
+        run: |
+          node build/inline.mjs
+          git diff --exit-code demo/single.html
+
+      - name: 插件数量与文档表一致
+        run: |
+          node - <<'EOF'
+          const fs = require('fs');
+          const tick = String.fromCharCode(96);
+          const plugins = fs.readdirSync('plugins')
+            .filter((f) => f.endsWith('.js'))
+            .map((f) => f.replace(/\.js$/, ''))
+            .sort();
+          const readme = fs.readFileSync('README.md', 'utf8');
+          const missing = plugins.filter((p) => !readme.includes(tick + p + tick));
+          if (missing.length) {
+            console.error('README 插件表缺：' + missing.join(', '));
+            process.exit(1);
+          }
+          console.log('插件 ' + plugins.length + ' 个，README 均有记录');
+          EOF

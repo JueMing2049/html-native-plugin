@@ -1,0 +1,66 @@
+name: 改契约
+description: 想动插件名、CSS 变量名或 HNP.define 的签名
+title: "[contract] "
+labels: ["breaking-change"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        下面这三样是**兼容承诺**。改了，已经用上旧版的人升级后不会报错，只会静默失效——这比崩溃更难查。
+        所以这类改动必须开 issue 讨论，且走主版本。
+
+        1. `data-hnp` 的插件名
+        2. `hnp.css` 里的 CSS 变量名（`--jade`、`--panel` 等）
+        3. `HNP.define` / `mount` / `unmount` / `ctx` 的签名与语义
+
+  - type: dropdown
+    id: target
+    attributes:
+      label: 要动哪一项
+      options:
+        - 插件名（data-hnp 的值）
+        - CSS 变量名
+        - HNP.define / mount / unmount 签名
+        - ctx 上的成员或语义
+    validations:
+      required: true
+
+  - type: input
+    id: current
+    attributes:
+      label: 现在的写法
+      placeholder: "HNP.unmount(root, name)"
+    validations:
+      required: true
+
+  - type: input
+    id: proposed
+    attributes:
+      label: 想改成什么
+      placeholder: "HNP.unmount(root, { plugins: [...] })"
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: 为什么必须改，而不是新增一个
+      description: 这一栏是关键。如果只是"叫法更顺"，大概率会被否——保留旧名、加新名即可，不必破坏。
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: 影响面
+      description: 会打到哪些现有用法？打算怎么迁移？（能否保留旧名做别名？能否先废弃一版再删？）
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: ack
+    attributes:
+      label: 确认
+      options:
+        - label: 我理解这会升主版本，且需要更新 CHANGELOG 与迁移说明
+        - label: 我已检查过：不能用新增代替修改

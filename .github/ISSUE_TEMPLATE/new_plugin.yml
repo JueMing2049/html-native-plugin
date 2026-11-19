@@ -1,0 +1,70 @@
+name: 提新插件
+description: 想加一种现在还不会的交互
+title: "[plugin] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        新插件是这套东西最欢迎的贡献。前提是**插件之间互不知道对方存在**：
+        只认自己的 `data-hnp`，状态放自己的闭包，监听器经 `ctx.on` 登记。
+        写之前读 `docs/plugin-spec.md`。
+
+  - type: input
+    id: name
+    attributes:
+      label: 插件名
+      description: 小写、短横线分词，它会成为 `data-hnp` 的值
+      placeholder: "tree / diff / quiz"
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: 它做什么
+      description: 一句话说清"页面因此多了什么能力"
+      placeholder: "把嵌套列表变成可折叠的树，记住展开状态"
+    validations:
+      required: true
+
+  - type: textarea
+    id: dom
+    attributes:
+      label: 它要求什么 DOM 结构
+      description: 类名、属性、必须有的子元素。这是评审时最先看的部分。
+      render: html
+      placeholder: |
+        <div class="hnp-tree" data-hnp="tree">
+          <ul><li data-open="true">…</li></ul>
+        </div>
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: 为什么现有插件做不到
+      description: 说明它和已装插件的边界，避免功能重叠
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: 自检
+      options:
+        - label: 卸载后点击无响应（监听器都经 ctx.on 登记）
+        - label: 重复挂载三次实例数不变
+        - label: 两个实例同时存在时互不干扰
+        - label: prefers-reduced-motion 下内容不消失
+        - label: 插件名与类名都带 hnp- 前缀，无新增全局变量
+
+  - type: dropdown
+    id: willing
+    attributes:
+      label: 是否愿意自己提 PR
+      options:
+        - 愿意，我已写好或在写
+        - 需要指引，希望有人带
+        - 只是提需求，不写代码

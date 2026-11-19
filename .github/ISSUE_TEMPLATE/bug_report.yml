@@ -1,0 +1,62 @@
+name: 报告问题
+description: 交互不生效、行为不对、控制台有 [hnp] 报错
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        大部分"没反应"其实是 DOM 结构不对：类名写错不会报错，只会静默无效果。
+        先对照 `docs/plugin-spec.md` 和技能里的 `references/blocks.md` 核一遍结构，再来报。
+
+  - type: input
+    id: version
+    attributes:
+      label: 版本
+      description: 项目里 `.hnp-lock.json` 的 `hnp.version`，或控制台执行 `HNP.version` 的值
+      placeholder: "0.2.1"
+    validations:
+      required: true
+
+  - type: input
+    id: scope
+    attributes:
+      label: 涉及哪个插件
+      description: `data-hnp` 里的名字；涉及内核就写 nuclear
+      placeholder: "tabs / anno / 内核"
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: 最小复现
+      description: 能直接打开的 HTML 片段，或"哪个容器 + 怎么点"。不要只写"批注不好使"。
+      placeholder: |
+        <div class="hnp-tabs" data-hnp="tabs">…</div>
+        点第二个标签，面板不切换
+    validations:
+      required: true
+
+  - type: textarea
+    id: console
+    attributes:
+      label: 控制台原文
+      description: 以 `[hnp]` 开头的警告尤其重要——插件挂载失败只 warn，不抛错。
+      render: text
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望 vs 实际
+      placeholder: |
+        期望：点第二个标签，第二个面板显示
+        实际：两个面板都隐藏
+    validations:
+      required: true
+
+  - type: input
+    id: env
+    attributes:
+      label: 环境
+      placeholder: "Chrome 131 / Windows 11 / 本地静态服务"

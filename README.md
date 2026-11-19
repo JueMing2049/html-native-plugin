@@ -135,6 +135,15 @@ node build/inline.mjs
 
 两者互相独立，本项目不要求 kunpeng-ops 改动，kunpeng-ops 也不依赖本项目。
 
+## 参与改进
+
+库与安装器同仓、同版本发布，改动只走这一个仓库。
+
+- 想改自己项目的配色/间距/字体 → 写目标项目里的 `hnp-theme.css`，不必提 PR
+- 发现交互不对、想加新插件、想动插件名或 CSS 变量名 → 看 [CONTRIBUTING.md](CONTRIBUTING.md)
+
+改完 `src/` 或 `plugins/` 记得跑 `node skill/scripts/sync-template.mjs` 重建模板，否则发出去的还是旧代码。
+
 ## License
 
 MIT

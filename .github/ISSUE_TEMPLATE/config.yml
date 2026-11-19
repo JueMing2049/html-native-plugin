@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 使用与接入文档
+    url: https://github.com/JueMing2049/html-native-plugin#readme
+    about: 先看 README、docs/api.md 与 docs/plugin-spec.md，多数"没反应"是 DOM 结构不对
+  - name: 在线演示
+    url: https://jueming2049.github.io/html-native-plugin/demo/index.html
+    about: 在真实页面里对着点一遍，确认是用法问题还是缺陷

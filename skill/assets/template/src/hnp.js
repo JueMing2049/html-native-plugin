@@ -1,11 +1,12 @@
 /*!
- * HNP 路 HTML Native Plugin  v0.1.0
- * 闆朵緷璧?路 鍘熺敓 API 路 娉ㄥ唽鍒朵氦浜掓彃浠惰繍琛屾椂
- * 鍔犱竴琛?script銆佸啓涓€涓?data-hnp锛岄〉闈㈠氨闀垮嚭浜や簰锛涘弻鍑?HTML 鍗冲彲鐢紝涓嶉渶瑕佷换浣曚汉瀹夎涓滆タ銆? */
+ * HNP · HTML Native Plugin  v0.1.0
+ * 零依赖 · 原生 API · 注册制交互插件运行时
+ * 加一行 script、写一个 data-hnp，页面就长出交互；双击 HTML 即可用，不需要任何人安装东西。
+ */
 (function (global) {
   'use strict';
 
-  var VERSION = '0.2.0';
+  var VERSION = '0.2.1';
   var ATTR = 'data-hnp';
 
   var registry = Object.create(null);
@@ -25,7 +26,7 @@
     return !!(global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches);
   }
 
-  /* ---------- 浜嬩欢鎬荤嚎 ---------- */
+  /* ---------- 事件总线 ---------- */
   function on(evt, fn) {
     (bus[evt] || (bus[evt] = [])).push(fn);
     return function () { off(evt, fn); };
@@ -40,14 +41,14 @@
 
   function emit(evt, payload) {
     (bus[evt] || []).slice().forEach(function (fn) {
-      try { fn(payload); } catch (e) { warn('璁㈤槄鑰呭嚭閿欙細' + evt, e); }
+      try { fn(payload); } catch (e) { warn('订阅者出错：' + evt, e); }
     });
     (bus['*'] || []).slice().forEach(function (fn) {
-      try { fn({ type: evt, payload: payload }); } catch (e) { /* 閫氶厤璁㈤槄澶辫触涓嶅奖鍝嶄富娴佺▼ */ }
+      try { fn({ type: evt, payload: payload }); } catch (e) { /* 通配订阅失败不影响主流程 */ }
     });
   }
 
-  /* ---------- 甯﹀懡鍚嶇┖闂寸殑瀹夊叏瀛樺偍 ---------- */
+  /* ---------- 带命名空间的安全存储 ---------- */
   function store(ns) {
     var prefix = 'hnp:' + ns + ':';
     function run(fn, fallback) {
@@ -69,7 +70,7 @@
     };
   }
 
-  /* ---------- 澶嶅埗鍒板壀璐存澘锛堝惈 execCommand 鍏滃簳锛?---------- */
+  /* ---------- 复制到剪贴板（含 execCommand 兜底） ---------- */
   function copy(text) {
     var done = false;
     if (global.navigator && navigator.clipboard && navigator.clipboard.writeText) {
@@ -85,12 +86,12 @@
       ta.style.opacity = '0';
       global.document.body.appendChild(ta);
       ta.select();
-      try { global.document.execCommand('copy'); } catch (e) { warn('澶嶅埗澶辫触', e); }
+      try { global.document.execCommand('copy'); } catch (e) { warn('复制失败', e); }
       global.document.body.removeChild(ta);
     }
   }
 
-  /* ---------- 鍏冪礌閫夐」 ---------- */
+  /* ---------- 元素选项 ---------- */
   function readOpts(el) {
     var out = {};
     if (!el || !el.attributes) return out;
@@ -103,7 +104,7 @@
     return out;
   }
 
-  /* ---------- 涓婁笅鏂?---------- */
+  /* ---------- 上下文 ---------- */
   function makeCtx(name, spec, el) {
     var disposers = [];
     var opts = {};
@@ -149,17 +150,17 @@
     return ctx;
   }
 
-  /* ---------- 娉ㄥ唽 ---------- */
+  /* ---------- 注册 ---------- */
   function define(name, spec) {
     if (!name || typeof name !== 'string') {
-      warn('define 闇€瑕佷竴涓彃浠跺悕');
+      warn('define 需要一个插件名');
       return false;
     }
     if (!spec || typeof spec.mount !== 'function') {
-      warn('鎻掍欢 "' + name + '" 缂哄皯 mount 鏂规硶');
+      warn('插件 "' + name + '" 缺少 mount 方法');
       return false;
     }
-    if (registry[name]) warn('鎻掍欢 "' + name + '" 宸茶瑕嗙洊娉ㄥ唽');
+    if (registry[name]) warn('插件 "' + name + '" 已被覆盖注册');
     else order.push(name);
     registry[name] = spec;
     return true;
@@ -168,19 +169,20 @@
   function defined(name) { return !!registry[name]; }
   function plugins() { return order.slice(); }
 
-  /* ---------- 鎸傝浇 ---------- */
+  /* ---------- 挂载 ---------- */
   function mountOne(el, name) {
     var spec = registry[name];
-    if (!spec) { warn('鎻掍欢 "' + name + '" 鏈敞鍐岋紝宸茶烦杩?); return false; }
+    if (!spec) { warn('插件 "' + name + '" 未注册，已跳过'); return false; }
 
     var set = mounted.get(el);
     if (!set) { set = Object.create(null); mounted.set(el, set); }
-    if (set[name]) return false;              // 骞傜瓑锛氬悓涓€鍏冪礌鍚屼竴鎻掍欢鍙寕涓€娆?
+    if (set[name]) return false;              // 幂等：同一元素同一插件只挂一次
+
     var ctx = makeCtx(name, spec, el);
     try {
       spec.mount(el, ctx);
     } catch (e) {
-      warn('鎻掍欢 "' + name + '" 鎸傝浇澶辫触', e);
+      warn('插件 "' + name + '" 挂载失败', e);
       ctx.dispose();
       return false;
     }
@@ -210,7 +212,7 @@
     return count;
   }
 
-  /* ---------- 鍗歌浇 ---------- */
+  /* ---------- 卸载 ---------- */
   function unmount(root, name) {
     var scope = root || global.document;
     var removed = 0;
@@ -220,7 +222,7 @@
           item.el !== scope && !scope.contains(item.el)) return;
 
       var spec = registry[item.name];
-      try { if (spec && typeof spec.unmount === 'function') spec.unmount(item.el, item.ctx); } catch (e) { warn('鎻掍欢 "' + item.name + '" 鍗歌浇澶辫触', e); }
+      try { if (spec && typeof spec.unmount === 'function') spec.unmount(item.el, item.ctx); } catch (e) { warn('插件 "' + item.name + '" 卸载失败', e); }
       item.ctx.dispose();
 
       var set = mounted.get(item.el);
@@ -234,7 +236,7 @@
     return removed;
   }
 
-  /* ---------- 鑷淇℃伅锛堢粰 demo 涓庢祴璇曠敤锛?---------- */
+  /* ---------- 自检信息（给 demo 与测试用） ---------- */
   function inspect() {
     var byName = {};
     live.forEach(function (item) { byName[item.name] = (byName[item.name] || 0) + 1; });
@@ -246,13 +248,13 @@
     };
   }
 
-  /* ---------- 鎸夊悕鍙栫敤 ---------- */
+  /* ---------- 按名取用 ---------- */
   function use(name) {
-    if (!registry[name]) warn('鎻掍欢 "' + name + '" 鏈敞鍐?);
+    if (!registry[name]) warn('插件 "' + name + '" 未注册');
     return { mount: function (root) { return mount(root, { plugins: [name] }); } };
   }
 
-  /* ---------- 鍚姩 ---------- */
+  /* ---------- 启动 ---------- */
   function boot() {
     if (booted) return;
     booted = true;
