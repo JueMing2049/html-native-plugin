@@ -20,7 +20,7 @@
  *   --private             --publish 时建私有仓库（默认公开）
  */
 
-import { mkdir, readFile, writeFile, copyFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, copyFile, readdir, cp } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, join, resolve, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -31,6 +31,7 @@ import { tmpdir } from 'node:os';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ASSETS = resolve(HERE, '..', 'assets');
 const TEMPLATE = join(ASSETS, 'template');
+const TEMPLATES = resolve(HERE, '..', 'templates'); // 手写模板：每个目录一个 template.json
 
 // 模板的版本戳由 scripts/sync-template.mjs 写入。缺了不阻断生成，但 lockfile 会记成 unknown，
 // 免得以后排查"用户跑的是哪一版"时误以为是最新。
@@ -67,6 +68,16 @@ function parseArgs(argv) {
 
 const { flags, opts } = parseArgs(process.argv.slice(2));
 
+if (flags.has('list-templates')) {
+  console.log('basic（默认，通用演示页）');
+  if (existsSync(TEMPLATES)) {
+    const dirs = (await readdir(TEMPLATES, { withFileTypes: true }))
+      .filter((d) => d.isDirectory()).map((d) => d.name).sort();
+    dirs.forEach((n) => console.log(n));
+  }
+  process.exit(0);
+}
+
 if (!opts.dir) {
   console.error('缺少 --dir <目标目录>');
   process.exit(2);
@@ -74,15 +85,35 @@ if (!opts.dir) {
 
 const target = resolve(opts.dir);
 const title = opts.title || 'HNP 演示';
-const wantDemo = !flags.has('no-demo');
+let wantDemo = !flags.has('no-demo');
 const wantSingle = flags.has('single');
 const wantGit = flags.has('git');
 const wantPublish = flags.has('publish');
 const force = flags.has('force');
 
-const plugins = (opts.plugins ? opts.plugins.split(',') : ALL_PLUGINS)
-  .map((s) => s.trim())
-  .filter(Boolean);
+/* ---------------- 模板 ---------------- */
+
+const templateName = opts.template || 'basic';
+let templateMeta = null;
+
+if (templateName !== 'basic') {
+  const metaPath = join(TEMPLATES, templateName, 'template.json');
+  if (!existsSync(metaPath)) {
+    console.error('找不到模板：' + templateName);
+    const available = existsSync(TEMPLATES) ? (await readdir(TEMPLATES)).join(', ') : '（无）';
+    console.error('可选：basic, ' + available);
+    process.exit(2);
+  }
+  templateMeta = JSON.parse(await readFile(metaPath, 'utf8'));
+  // 模板自带完整页面，就不再生成通用演示页
+  wantDemo = false;
+}
+
+const wanted = opts.plugins
+  ? opts.plugins.split(',')
+  : (templateMeta && templateMeta.plugins ? templateMeta.plugins : ALL_PLUGINS);
+
+const plugins = wanted.map((s) => s.trim()).filter(Boolean);
 
 const unknown = plugins.filter((p) => !ALL_PLUGINS.includes(p));
 if (unknown.length) {
@@ -119,6 +150,15 @@ for (const name of plugins) {
 const themePath = join(target, 'src', 'hnp-theme.css');
 const themeCreated = !existsSync(themePath);
 if (themeCreated) await copyFile(join(ASSETS, 'theme.css'), themePath);
+
+// 模板自带的文件（页面、脚本、图源、图标）。template.json 是给脚手架读的，不进目标项目。
+if (templateMeta) {
+  const src = join(TEMPLATES, templateName);
+  for (const entry of await readdir(src)) {
+    if (entry === 'template.json') continue;
+    await cp(join(src, entry), join(target, entry), { recursive: true });
+  }
+}
 
 /* ---------------- 每个插件的演示块 ---------------- */
 
@@ -341,6 +381,7 @@ const PLUGIN_DOC = {
 const readme = `# ${basename(target)}
 
 已接入 [HNP](https://github.com/JueMing2049/html-native-plugin) 零依赖 HTML 原生交互层，生成版本 \`v${upstream.version}\`。
+${templateMeta ? `\n模板：**${templateMeta.title}**（\`${templateMeta.name}\`）。入口 \`${templateMeta.entry || 'index.html'}\`。\n` : ''}
 
 ## 已落地的文件
 
@@ -413,7 +454,9 @@ node <skill>/scripts/upgrade.mjs --dir . --apply
 
 ## 看效果
 
-${wantDemo ? '双击 `demo/index.html`' + (wantSingle ? '，或 `demo/single.html`（全内联、可离线）' : '') + '。' : '本项目只放了运行库与插件，没有生成 demo。'}
+${templateMeta
+  ? `打开 \`${templateMeta.entry || 'index.html'}\`：先定级、再对标、再画图，五图确认后誊字段，最后导出 \`diagram-first.json\` 与 \`app-spec.md\`。`
+  : (wantDemo ? '双击 `demo/index.html`' + (wantSingle ? '，或 `demo/single.html`（全内联、可离线）' : '') + '。' : '本项目只放了运行库与插件，没有生成 demo。')}
 `;
 
 /* ---------------- 写出 ---------------- */
@@ -430,6 +473,14 @@ if (wantDemo) {
 }
 
 await writeFile(join(target, 'README.md'), readme, 'utf8');
+
+// 模板页的单文件版：图源也一起内联，断网、打印、发邮件都能用
+if (templateMeta && wantSingle) {
+  const entry = templateMeta.entry || 'index.html';
+  let html = await readFile(join(target, entry), 'utf8');
+  html = await inlineAssets(html, target);
+  await writeFile(join(target, 'single.html'), html, 'utf8');
+}
 
 /* ---------------- 来源记录 ----------------
  * lockfile 是"升级"能不能安全进行的前提：记下生成时每个上游文件的哈希，
@@ -450,6 +501,8 @@ const lock = {
     commit: upstream.commit,
     repo: upstream.repo
   },
+  // 模板页、scripts/、figures/ 都是使用者要改的东西，不进 files，升级不会碰
+  template: templateMeta ? { name: templateName, version: upstream.version } : { name: 'basic' },
   plugins,
   theme: 'src/hnp-theme.css',
   files
@@ -460,7 +513,9 @@ async function inlineAssets(html, baseDir) {
   const marks = [];
   for (const [source, open, close, guard] of [
     ['<link\\s+rel="stylesheet"\\s+href="([^"]+)"\\s*\\/?>', '<style>', '</style>', '</style>'],
-    ['<script\\s+src="([^"]+)"\\s*><\\/script>', '<script>', '</script>', '</script>']
+    ['<script\\s+src="([^"]+)"\\s*><\\/script>', '<script>', '</script>', '</script>'],
+    // 单文件产物要能离线打开，图源也得内联进来；图源文件本身仍然保留，可 diff
+    ['<img\\s+[^>]*src="([^"]+\\.svg)"[^>]*>', '', '', null]
   ]) {
     const re = new RegExp(source, 'g');
     let mm;
@@ -474,7 +529,7 @@ async function inlineAssets(html, baseDir) {
   let out = html;
   for (const mk of marks) {
     const content = await readFile(resolve(baseDir, mk.href), 'utf8');
-    if (content.includes(mk.guard)) {
+    if (mk.guard && content.includes(mk.guard)) {
       throw new Error(mk.href + ' 含 ' + mk.guard + '，无法安全内联');
     }
     out = out.slice(0, mk.start) + mk.open + '\n' + content + '\n' + mk.close + out.slice(mk.end);
@@ -503,7 +558,9 @@ function ensureGit(dir) {
   execFileSync('git', ['-C', dir, 'init'], { stdio: 'pipe' });
   execFileSync('git', ['-C', dir, 'branch', '-M', 'main'], { stdio: 'pipe' });
 
-  const paths = ['src', 'plugins', 'README.md'].concat(wantDemo ? ['demo'] : []);
+  const paths = ['src', 'plugins', 'README.md']
+    .concat(wantDemo ? ['demo'] : [])
+    .concat(templateMeta ? ['index.html', 'scripts', 'figures', 'assets'] : []);
   execFileSync('git', ['-C', dir, 'add'].concat(paths), { stdio: 'pipe' });
   execFileSync('git', ['-C', dir, 'commit', '-m', 'feat: 接入 HNP HTML 原生交互层'], { stdio: 'pipe' });
   return { inited: true, toplevel: dir, committed: true };
@@ -538,6 +595,7 @@ if (wantPublish) {
 
 console.log(JSON.stringify({
   target,
+  template: templateName,
   hnp: { version: upstream.version, commit: upstream.commit },
   plugins,
   theme: { path: 'src/hnp-theme.css', created: themeCreated },

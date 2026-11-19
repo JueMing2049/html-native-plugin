@@ -96,6 +96,19 @@ VERSION / CHANGELOG.md
 node skill/scripts/scaffold.mjs --dir <目标目录> --title "..." --git
 ```
 
+可用模板（`--list-templates`）：
+
+| 模板 | 用途 |
+| --- | --- |
+| `basic`（默认） | 通用演示页，展示全部插件 |
+| `diagram-first` | **图显前置工作台**：智能体应用开发前先画五张图、再誊字段，导出范式包交给 `workswarm-app-builder` |
+
+```bash
+node skill/scripts/scaffold.mjs --dir <新项目> --template diagram-first --git
+```
+
+图显前置模板的分级、五图判据、导出 schema 与 app-builder 映射，见 [skill/references/diagram-first.md](skill/references/diagram-first.md)。
+
 生成的项目里会有三层，职责不混：
 
 | 文件 | 归谁 | 升级时 |

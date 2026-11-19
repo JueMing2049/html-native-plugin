@@ -102,12 +102,33 @@ node skill/scripts/sync-template.mjs   # 从仓内源码重建模板 + 写 VERSI
 
 装到本地技能目录属于"安装"，不是源码：改完 `skill/` 要把它同步到 `~/.jiuwenswarm/agent/workspace/skills/hnp-scaffold/`，并确认 `assets/VERSION.json` 的版本对得上。
 
+## 场景 E：智能体应用开发前的图显前置
+
+用户要给 `workswarm-app-builder` 做应用、但需求还停在"帮我做个 AI 陪练"时，先别开工，先过图：
+
+```bash
+node <SKILL_ROOT>/scripts/scaffold.mjs \
+  --dir <新项目目录> --template diagram-first --title "图显前置" --git
+```
+
+生成一个**纯静态**工作台（不接 Gateway、不上架），五阶段逐级解锁：定级 → 对标 → 画图 → 誊字段 → 导出。
+
+- 定级决定画几张图：Quick 两张、Light 三张、Full 五张，门禁强度随之变化
+- 五张图：效果 / 流程 / 编排 / 架构 / 时序（智能体特有，画角色与回合收口）
+- 图源是 `figures/*.svg`，可 diff、可替换工具；页面里不能拖拽改图
+- 导出 `diagram-first.json`（喂 app-builder）与 `app-spec.md`（贴进对话）
+- 本级别图未确认或必答未填时，`status` 只能是 `draft`
+
+细节（五图判据、BDMP 六层、schema、与 app-builder 的映射）读 `references/diagram-first.md`。**不要把这张工作台当成交付应用**——它只是前置稿，真正的应用由 app-builder 在拿到导出物之后开发。
+
 ## 参数
 
 | 参数 | 说明 |
 | --- | --- |
 | `--dir <path>` | 目标目录，必需，不存在会自动创建 |
-| `--plugins a,b,c` | 要落地的插件，默认全部 12 个 |
+| `--template <name>` | 用模板生成，默认 `basic`（通用演示页）。`diagram-first` 是智能体应用开发的图显前置工作台，见场景 E |
+| `--list-templates` | 列出可用模板 |
+| `--plugins a,b,c` | 要落地的插件，默认全部 12 个；用模板时默认用模板声明的插件集 |
 | `--title <str>` | demo 页标题 |
 | `--no-demo` | 不生成 `demo/` |
 | `--single` | 额外产出全内联 `demo/single.html` |
@@ -144,6 +165,7 @@ node skill/scripts/sync-template.mjs   # 从仓内源码重建模板 + 写 VERSI
 ## 参考
 
 - `references/blocks.md` — 每个插件要求的 HTML 结构与类名，按需读对应小节
+- `references/diagram-first.md` — 图显前置模板：五阶段、分级与门禁、五图判据、schema、与 app-builder 的映射
 - `references/pitfalls.md` — 接入既有项目时反复踩到的坑，首次接入前读一遍
 - `scripts/scaffold.mjs` — 落文件与建仓的实现，改行为改这里
 - `scripts/upgrade.mjs` — 按 lockfile 增量升级，只动用户没改过的文件

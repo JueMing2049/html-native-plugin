@@ -1,0 +1,7 @@
+{
+  "name": "diagram-first",
+  "title": "图显前置工作台",
+  "description": "智能体应用开发前的五张图与字段誊写工作台：定级、对标、画图、誊字段、导出范式包。",
+  "entry": "index.html",
+  "plugins": ["tabs", "timeline", "anno"]
+}

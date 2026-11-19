@@ -6,7 +6,7 @@
 (function (global) {
   'use strict';
 
-  var VERSION = '0.2.1';
+  var VERSION = '0.3.0';
   var ATTR = 'data-hnp';
 
   var registry = Object.create(null);

@@ -2,6 +2,21 @@
 
 版本规则：`主版本.次版本.修订号`。**插件名、CSS token 名、`HNP.define` 签名属于兼容承诺**，改动必须走主版本。
 
+## 0.3.0
+
+新增**图显前置模板**（`--template diagram-first`）：智能体应用开发前的工作台，先画五张图，再誊字段，导出范式包交给 `workswarm-app-builder`。
+
+- 五阶段逐级解锁：定级 → 对标（BDMP）→ 画图 → 誊字段 → 导出。
+- **按复杂度分级**：Quick 两张图一道门，Light 三张，Full 五张四道门。避免小需求被大流程压死。
+- **五张图**：效果 / 流程 / 编排 / 架构 / **时序**（智能体特有：角色与回合收口）。
+- **Diagram-as-Code**：图源是独立 `figures/*.svg`，可 diff、可替换工具，页面不绑死。
+- 效果图三种来源：占位 / 上传 / 外部生图（模板不调模型，保持纯静态）。
+- 导出 `diagram-first.json`（schema v1）与 `app-spec.md`；未完成只能导草稿。
+- `scaffold.mjs` 新增 `--template`、`--list-templates`；模板页与 `figures/` 不进 lockfile，升级不覆盖。
+- `build/inline.mjs` 新增 `--inline-svg`；`scaffold --single` 在模板模式下会连图源一起内联。
+
+不改插件契约，`data-hnp` 名、CSS token 名、`HNP.define` 签名均未变动，0.2.x 项目可直接升级。
+
 ## 0.2.1
 
 补齐对外协作所需的东西，并修掉 v0.2.0 的一个发布事故。
