@@ -1,6 +1,6 @@
 {
   "version": "0.2.1",
-  "commit": "93610ded45d1c9041f77eba7dde68202527c2f94",
+  "commit": "e521df23fe04269846a02673f0099a4f6825e6a1",
   "repo": "https://github.com/JueMing2049/html-native-plugin",
   "templatePath": "skill/assets/template",
   "plugins": [
@@ -17,5 +17,5 @@
     "toc",
     "tone"
   ],
-  "syncedAt": "2026-11-19T05:05:40.272Z"
+  "syncedAt": "2026-11-19T05:05:56.767Z"
 }
