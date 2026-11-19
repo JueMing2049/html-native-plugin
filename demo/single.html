@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="color-scheme" content="dark light" />
-<title>HNP · HTML 原生交互插件</title>
+<title>HNP 路 HTML 鍘熺敓浜や簰鎻掍欢</title>
 <script>document.documentElement.classList.add('js')</script>
 <style>
 /*!
@@ -256,7 +256,7 @@
 
 </style>
 <style>
-  /* 本页只写版面；交互与配色全部来自 hnp.css */
+  /* 鏈〉鍙啓鐗堥潰锛涗氦浜掍笌閰嶈壊鍏ㄩ儴鏉ヨ嚜 hnp.css */
   *{box-sizing:border-box}
   html{scroll-behavior:smooth;scroll-padding-top:78px}
   body{
@@ -308,185 +308,182 @@
 
 <div class="bar">
   <div class="bar__in">
-    <span class="brand">HNP <b>v0.1.0</b></span>
+    <span class="brand">HNP <b>v0.2.0</b></span>
     <span class="bar__sp"></span>
-    <button class="hnp-btn" type="button" data-hnp="tone">通俗版</button>
-    <button class="hnp-btn" type="button" data-hnp="theme">浅色</button>
-    <button class="hnp-btn" type="button" data-hnp="copy-md">复制 Markdown</button>
+    <button class="hnp-btn" type="button" data-hnp="tone">閫氫織鐗?/button>
+    <button class="hnp-btn" type="button" data-hnp="theme">娴呰壊</button>
+    <button class="hnp-btn" type="button" data-hnp="copy-md">澶嶅埗 Markdown</button>
   </div>
 </div>
 
 <div class="wrap">
   <header style="padding:56px 0 6px">
     <div class="kicker">HTML Native Plugin</div>
-    <h1>页面本来就会动，<em>只是没人告诉它</em></h1>
+    <h1>椤甸潰鏈潵灏变細鍔紝<em>鍙槸娌′汉鍛婅瘔瀹?/em></h1>
     <p class="lead">
-      一份 <code>hnp.js</code> 加一个 <code>data-hnp</code>，静态 HTML 就长出标签页、筛选、批注、决策卡。
-      不装任何东西，双击就能用；十二个插件各是一个文件，用哪个引哪个。
-    </p>
-    <p class="muted plain-only">说白了：以前这些交互得靠一个框架、一个构建、一个服务器。现在只要一行 script，谁打开都能点。</p>
+      涓€浠?<code>hnp.js</code> 鍔犱竴涓?<code>data-hnp</code>锛岄潤鎬?HTML 灏遍暱鍑烘爣绛鹃〉銆佺瓫閫夈€佹壒娉ㄣ€佸喅绛栧崱銆?      涓嶈浠讳綍涓滆タ锛屽弻鍑诲氨鑳界敤锛涘崄浜屼釜鎻掍欢鍚勬槸涓€涓枃浠讹紝鐢ㄥ摢涓紩鍝釜銆?    </p>
+    <p class="muted plain-only">璇寸櫧浜嗭細浠ュ墠杩欎簺浜や簰寰楅潬涓€涓鏋躲€佷竴涓瀯寤恒€佷竴涓湇鍔″櫒銆傜幇鍦ㄥ彧瑕佷竴琛?script锛岃皝鎵撳紑閮借兘鐐广€?/p>
   </header>
 
   <div class="layout">
 
     <nav class="hnp-toc" data-hnp="toc">
-      <a href="#s1">标签页</a>
-      <a href="#s2">筛选</a>
-      <a href="#s3">对比滑块</a>
-      <a href="#s4">决策卡</a>
-      <a href="#s5">渐入与数字</a>
-      <a href="#s6">滚动叙事</a>
-      <a href="#s7">时间轴</a>
-      <a href="#s8">就地批注</a>
-      <a href="#s9">自检面板</a>
+      <a href="#s1">鏍囩椤?/a>
+      <a href="#s2">绛涢€?/a>
+      <a href="#s3">瀵规瘮婊戝潡</a>
+      <a href="#s4">鍐崇瓥鍗?/a>
+      <a href="#s5">娓愬叆涓庢暟瀛?/a>
+      <a href="#s6">婊氬姩鍙欎簨</a>
+      <a href="#s7">鏃堕棿杞?/a>
+      <a href="#s8">灏卞湴鎵规敞</a>
+      <a href="#s9">鑷闈㈡澘</a>
     </nav>
 
     <main id="hnp-md-source">
 
       <section id="s1">
-        <h2>01 · 标签页 tabs</h2>
+        <h2>01 路 鏍囩椤?tabs</h2>
         <div class="hnp-tabs" data-hnp="tabs">
           <div class="hnp-tabs__bar">
-            <button class="hnp-tab" type="button">它是什么</button>
-            <button class="hnp-tab" type="button">怎么接</button>
-            <button class="hnp-tab" type="button">为什么不用框架</button>
+            <button class="hnp-tab" type="button">瀹冩槸浠€涔?/button>
+            <button class="hnp-tab" type="button">鎬庝箞鎺?/button>
+            <button class="hnp-tab" type="button">涓轰粈涔堜笉鐢ㄦ鏋?/button>
           </div>
           <div class="hnp-pane">
-            <p>一个注册制内核加十二个独立插件。每个插件只认自己的 <code>data-hnp</code>，互不知道对方存在。</p>
+            <p>涓€涓敞鍐屽埗鍐呮牳鍔犲崄浜屼釜鐙珛鎻掍欢銆傛瘡涓彃浠跺彧璁よ嚜宸辩殑 <code>data-hnp</code>锛屼簰涓嶇煡閬撳鏂瑰瓨鍦ㄣ€?/p>
           </div>
           <div class="hnp-pane">
-            <p><code>&lt;script src="hnp.js"&gt;&lt;/script&gt;</code> 之后写 <code>&lt;div data-hnp="tabs"&gt;</code>，剩下的交给约定。</p>
+            <p><code>&lt;script src="hnp.js"&gt;&lt;/script&gt;</code> 涔嬪悗鍐?<code>&lt;div data-hnp="tabs"&gt;</code>锛屽墿涓嬬殑浜ょ粰绾﹀畾銆?/p>
           </div>
           <div class="hnp-pane">
-            <p>框架要编译、要产物、要部署。这里要的是一个能发邮件、能离线双击、十年后还能打开的 HTML。</p>
+            <p>妗嗘灦瑕佺紪璇戙€佽浜х墿銆佽閮ㄧ讲銆傝繖閲岃鐨勬槸涓€涓兘鍙戦偖浠躲€佽兘绂荤嚎鍙屽嚮銆佸崄骞村悗杩樿兘鎵撳紑鐨?HTML銆?/p>
           </div>
         </div>
       </section>
 
       <section id="s2">
-        <h2>02 · 筛选 filter</h2>
+        <h2>02 路 绛涢€?filter</h2>
         <div data-hnp-scope>
           <div data-hnp="filter">
             <div class="hnp-chips">
-              <button class="hnp-chip on" type="button" data-k="all">全部</button>
-              <button class="hnp-chip" type="button" data-k="结构">结构</button>
-              <button class="hnp-chip" type="button" data-k="交互">交互</button>
-              <button class="hnp-chip" type="button" data-k="交付">交付</button>
+              <button class="hnp-chip on" type="button" data-k="all">鍏ㄩ儴</button>
+              <button class="hnp-chip" type="button" data-k="缁撴瀯">缁撴瀯</button>
+              <button class="hnp-chip" type="button" data-k="浜や簰">浜や簰</button>
+              <button class="hnp-chip" type="button" data-k="浜や粯">浜や粯</button>
             </div>
-            <div class="tag-item" data-hnp-tags="结构">注册表、生命周期、幂等记账</div>
-            <div class="tag-item" data-hnp-tags="交互 结构">选中即批、决策卡落库</div>
-            <div class="tag-item" data-hnp-tags="交互">拖拽对比、方向键切换</div>
-            <div class="tag-item" data-hnp-tags="交付">单文件内联、断网可用</div>
-            <div class="tag-item" data-hnp-tags="交付 结构">零依赖、无构建也能跑</div>
+            <div class="tag-item" data-hnp-tags="缁撴瀯">娉ㄥ唽琛ㄣ€佺敓鍛藉懆鏈熴€佸箓绛夎璐?/div>
+            <div class="tag-item" data-hnp-tags="浜や簰 缁撴瀯">閫変腑鍗虫壒銆佸喅绛栧崱钀藉簱</div>
+            <div class="tag-item" data-hnp-tags="浜や簰">鎷栨嫿瀵规瘮銆佹柟鍚戦敭鍒囨崲</div>
+            <div class="tag-item" data-hnp-tags="浜や粯">鍗曟枃浠跺唴鑱斻€佹柇缃戝彲鐢?/div>
+            <div class="tag-item" data-hnp-tags="浜や粯 缁撴瀯">闆朵緷璧栥€佹棤鏋勫缓涔熻兘璺?/div>
           </div>
         </div>
       </section>
 
       <section id="s3">
-        <h2>03 · 对比滑块 compare</h2>
+        <h2>03 路 瀵规瘮婊戝潡 compare</h2>
         <div class="hnp-cmp" data-hnp="compare">
           <div class="hnp-cmp__a">
-            <h3>不用 HNP</h3>
-            <p class="muted">每个页面重写一遍事件绑定；换个人接手就得重新读一遍 boot()；多实例互相踩状态。</p>
+            <h3>涓嶇敤 HNP</h3>
+            <p class="muted">姣忎釜椤甸潰閲嶅啓涓€閬嶄簨浠剁粦瀹氾紱鎹釜浜烘帴鎵嬪氨寰楅噸鏂拌涓€閬?boot()锛涘瀹炰緥浜掔浉韪╃姸鎬併€?/p>
           </div>
           <div class="hnp-cmp__b">
-            <h3>用 HNP</h3>
-            <p class="muted">声明式挂载、可卸载、幂等；状态按插件命名空间隔离；坏插件只 warn 不拖垮页面。</p>
+            <h3>鐢?HNP</h3>
+            <p class="muted">澹版槑寮忔寕杞姐€佸彲鍗歌浇銆佸箓绛夛紱鐘舵€佹寜鎻掍欢鍛藉悕绌洪棿闅旂锛涘潖鎻掍欢鍙?warn 涓嶆嫋鍨〉闈€?/p>
           </div>
-          <div class="hnp-cmp__h" title="拖动对比"></div>
+          <div class="hnp-cmp__h" title="鎷栧姩瀵规瘮"></div>
         </div>
       </section>
 
       <section id="s4">
-        <h2>04 · 决策卡 decision</h2>
-        <div class="hnp-dcard" data-hnp="decision" data-id="D-1" data-title="插件内核要不要管样式？">
-          <div class="hnp-dcard__q">内核要不要负责样式，还是只做调度？</div>
+        <h2>04 路 鍐崇瓥鍗?decision</h2>
+        <div class="hnp-dcard" data-hnp="decision" data-id="D-1" data-title="鎻掍欢鍐呮牳瑕佷笉瑕佺鏍峰紡锛?>
+          <div class="hnp-dcard__q">鍐呮牳瑕佷笉瑕佽礋璐ｆ牱寮忥紝杩樻槸鍙仛璋冨害锛?/div>
           <div class="hnp-dopts">
-            <button class="hnp-dopt" type="button" data-key="split">分离：内核管调度，样式在 hnp.css</button>
-            <button class="hnp-dopt" type="button" data-key="inline">内联：每个插件自带样式</button>
-            <button class="hnp-dopt" type="button" data-key="none">都不管，交给使用者</button>
+            <button class="hnp-dopt" type="button" data-key="split">鍒嗙锛氬唴鏍哥璋冨害锛屾牱寮忓湪 hnp.css</button>
+            <button class="hnp-dopt" type="button" data-key="inline">鍐呰仈锛氭瘡涓彃浠惰嚜甯︽牱寮?/button>
+            <button class="hnp-dopt" type="button" data-key="none">閮戒笉绠★紝浜ょ粰浣跨敤鑰?/button>
           </div>
           <div style="margin-bottom:12px">
-            <input data-note type="text" placeholder="补一句理由（可选）" style="width:100%;box-sizing:border-box;font-family:var(--sans);font-size:13px;padding:9px 11px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--txt)" />
+            <input data-note type="text" placeholder="琛ヤ竴鍙ョ悊鐢憋紙鍙€夛級" style="width:100%;box-sizing:border-box;font-family:var(--sans);font-size:13px;padding:9px 11px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--txt)" />
           </div>
           <div class="hnp-dcard__f">
-            <button class="hnp-btn pri" type="button" data-act="confirm">记下这个决定</button>
+            <button class="hnp-btn pri" type="button" data-act="confirm">璁颁笅杩欎釜鍐冲畾</button>
             <span class="hnp-dcard__out"></span>
           </div>
         </div>
       </section>
 
       <section id="s5" data-hnp="reveal">
-        <h2>05 · 渐入与数字 reveal</h2>
+        <h2>05 路 娓愬叆涓庢暟瀛?reveal</h2>
         <div class="grid2">
           <div class="hnp-reveal">
-            <div class="kpi"><span data-hnp-count="12">0</span><small>个内置插件</small></div>
+            <div class="kpi"><span data-hnp-count="12">0</span><small>涓唴缃彃浠?/small></div>
           </div>
           <div class="hnp-reveal">
-            <div class="kpi"><span data-hnp-count="0" data-hnp-dec="1">0</span><small>运行时依赖（个）</small></div>
+            <div class="kpi"><span data-hnp-count="0" data-hnp-dec="1">0</span><small>杩愯鏃朵緷璧栵紙涓級</small></div>
           </div>
         </div>
         <div class="hnp-reveal" style="margin-top:18px">
-          <p class="muted" style="margin-bottom:6px">单文件内联占比</p>
+          <p class="muted" style="margin-bottom:6px">鍗曟枃浠跺唴鑱斿崰姣?/p>
           <div class="hnp-bar" data-hnp-w="94%"></div>
         </div>
       </section>
 
       <section id="s6">
-        <h2>06 · 滚动叙事 scrolly</h2>
+        <h2>06 路 婊氬姩鍙欎簨 scrolly</h2>
         <div class="hnp-scrolly" data-hnp="scrolly">
           <div>
-            <div class="hnp-step"><h4>一 · 写好 HTML</h4><p>结构先站住，交互后加。没有 JS 也是完整的一篇。</p></div>
-            <div class="hnp-step"><h4>二 · 贴 data-hnp</h4><p>想要哪个能力，就在容器上写哪个名字，可以写多个。</p></div>
-            <div class="hnp-step"><h4>三 · 交付</h4><p>单文件内联后离线可开；要改就改源块，不要改产物。</p></div>
+            <div class="hnp-step"><h4>涓€ 路 鍐欏ソ HTML</h4><p>缁撴瀯鍏堢珯浣忥紝浜や簰鍚庡姞銆傛病鏈?JS 涔熸槸瀹屾暣鐨勪竴绡囥€?/p></div>
+            <div class="hnp-step"><h4>浜?路 璐?data-hnp</h4><p>鎯宠鍝釜鑳藉姏锛屽氨鍦ㄥ鍣ㄤ笂鍐欏摢涓悕瀛楋紝鍙互鍐欏涓€?/p></div>
+            <div class="hnp-step"><h4>涓?路 浜や粯</h4><p>鍗曟枃浠跺唴鑱斿悗绂荤嚎鍙紑锛涜鏀瑰氨鏀规簮鍧楋紝涓嶈鏀逛骇鐗┿€?/p></div>
           </div>
           <div class="hnp-scrolly__g">
             <div data-hnp-fig="1">
-              <h3>结构</h3>
-              <p class="muted">标题、段落、表格。此时没有任何脚本。</p>
+              <h3>缁撴瀯</h3>
+              <p class="muted">鏍囬銆佹钀姐€佽〃鏍笺€傛鏃舵病鏈変换浣曡剼鏈€?/p>
             </div>
             <div data-hnp-fig="2">
-              <h3>挂载</h3>
-              <p class="muted">内核扫到 <code>data-hnp</code>，把对应插件装上去。</p>
+              <h3>鎸傝浇</h3>
+              <p class="muted">鍐呮牳鎵埌 <code>data-hnp</code>锛屾妸瀵瑰簲鎻掍欢瑁呬笂鍘汇€?/p>
             </div>
             <div data-hnp-fig="3">
-              <h3>内联</h3>
-              <p class="muted">css 与 js 内联进同一份 HTML，行为一致、可离线。</p>
+              <h3>鍐呰仈</h3>
+              <p class="muted">css 涓?js 鍐呰仈杩涘悓涓€浠?HTML锛岃涓轰竴鑷淬€佸彲绂荤嚎銆?/p>
             </div>
           </div>
         </div>
       </section>
 
       <section id="s7">
-        <h2>07 · 时间轴 timeline</h2>
+        <h2>07 路 鏃堕棿杞?timeline</h2>
         <div class="hnp-tl" data-hnp="timeline">
-          <div class="hnp-tl__i"><div class="hnp-tl__d">STEP 01</div><div class="hnp-tl__t">内核先行</div><p class="hnp-tl__p">注册表、上下文、幂等记账先立住，插件才有地方挂。</p></div>
-          <div class="hnp-tl__i"><div class="hnp-tl__d">STEP 02</div><div class="hnp-tl__t">插件跟进</div><p class="hnp-tl__p">每个插件只解决一件事，能单独引、单独卸。</p></div>
-          <div class="hnp-tl__i"><div class="hnp-tl__d">STEP 03</div><div class="hnp-tl__t">降级兜底</div><p class="hnp-tl__p">动画可停、观察器可退、单插件失败不连坐。</p></div>
+          <div class="hnp-tl__i"><div class="hnp-tl__d">STEP 01</div><div class="hnp-tl__t">鍐呮牳鍏堣</div><p class="hnp-tl__p">娉ㄥ唽琛ㄣ€佷笂涓嬫枃銆佸箓绛夎璐﹀厛绔嬩綇锛屾彃浠舵墠鏈夊湴鏂规寕銆?/p></div>
+          <div class="hnp-tl__i"><div class="hnp-tl__d">STEP 02</div><div class="hnp-tl__t">鎻掍欢璺熻繘</div><p class="hnp-tl__p">姣忎釜鎻掍欢鍙В鍐充竴浠朵簨锛岃兘鍗曠嫭寮曘€佸崟鐙嵏銆?/p></div>
+          <div class="hnp-tl__i"><div class="hnp-tl__d">STEP 03</div><div class="hnp-tl__t">闄嶇骇鍏滃簳</div><p class="hnp-tl__p">鍔ㄧ敾鍙仠銆佽瀵熷櫒鍙€€銆佸崟鎻掍欢澶辫触涓嶈繛鍧愩€?/p></div>
         </div>
       </section>
 
       <section id="s8">
-        <h2>08 · 就地批注 anno</h2>
-        <p class="muted">选中这句话里的任意片段，页面会浮出一个「＋ 批注」。写下意见，右下角篮子收着，可导出与
-          <code>kunpeng-ops</code> 台账同构的 JSON。</p>
+        <h2>08 路 灏卞湴鎵规敞 anno</h2>
+        <p class="muted">閫変腑杩欏彞璇濋噷鐨勪换鎰忕墖娈碉紝椤甸潰浼氭诞鍑轰竴涓€岋紜 鎵规敞銆嶃€傚啓涓嬫剰瑙侊紝鍙充笅瑙掔瀛愭敹鐫€锛屽彲瀵煎嚭涓?          <code>kunpeng-ops</code> 鍙拌处鍚屾瀯鐨?JSON銆?/p>
         <div class="card" data-block="demo-anno-1" style="position:relative">
-          <h3>可被批注的块</h3>
-          <p class="muted">这一整块带 <code>data-block</code>，里面任意一句都能被选中批注。批注会记下块名、原文、类型和时间。</p>
+          <h3>鍙鎵规敞鐨勫潡</h3>
+          <p class="muted">杩欎竴鏁村潡甯?<code>data-block</code>锛岄噷闈换鎰忎竴鍙ラ兘鑳借閫変腑鎵规敞銆傛壒娉ㄤ細璁颁笅鍧楀悕銆佸師鏂囥€佺被鍨嬪拰鏃堕棿銆?/p>
         </div>
       </section>
 
       <section id="s9">
-        <h2>09 · 自检面板</h2>
+        <h2>09 路 鑷闈㈡澘</h2>
         <div class="card">
           <div class="row">
-            <button class="hnp-btn" type="button" id="btn-mount3">重复挂载 ×3</button>
-            <button class="hnp-btn" type="button" id="btn-unmount">卸载 tabs</button>
-            <button class="hnp-btn" type="button" id="btn-remount">重新挂载</button>
-            <button class="hnp-btn" type="button" id="btn-boom">注入坏插件</button>
-            <button class="hnp-btn" type="button" id="btn-inspect">读状态</button>
+            <button class="hnp-btn" type="button" id="btn-mount3">閲嶅鎸傝浇 脳3</button>
+            <button class="hnp-btn" type="button" id="btn-unmount">鍗歌浇 tabs</button>
+            <button class="hnp-btn" type="button" id="btn-remount">閲嶆柊鎸傝浇</button>
+            <button class="hnp-btn" type="button" id="btn-boom">娉ㄥ叆鍧忔彃浠?/button>
+            <button class="hnp-btn" type="button" id="btn-inspect">璇荤姸鎬?/button>
           </div>
-          <pre class="out" id="probe" style="margin:14px 0 0">点一下上面的按钮，这里显示 HNP.inspect() 的结果。</pre>
+          <pre class="out" id="probe" style="margin:14px 0 0">鐐逛竴涓嬩笂闈㈢殑鎸夐挳锛岃繖閲屾樉绀?HNP.inspect() 鐨勭粨鏋溿€?/pre>
         </div>
       </section>
 
@@ -496,14 +493,13 @@
 
 <script>
 /*!
- * HNP · HTML Native Plugin  v0.1.0
- * 零依赖 · 原生 API · 注册制交互插件运行时
- * 加一行 script、写一个 data-hnp，页面就长出交互；双击 HTML 即可用，不需要任何人安装东西。
- */
+ * HNP 路 HTML Native Plugin  v0.1.0
+ * 闆朵緷璧?路 鍘熺敓 API 路 娉ㄥ唽鍒朵氦浜掓彃浠惰繍琛屾椂
+ * 鍔犱竴琛?script銆佸啓涓€涓?data-hnp锛岄〉闈㈠氨闀垮嚭浜や簰锛涘弻鍑?HTML 鍗冲彲鐢紝涓嶉渶瑕佷换浣曚汉瀹夎涓滆タ銆? */
 (function (global) {
   'use strict';
 
-  var VERSION = '0.1.0';
+  var VERSION = '0.2.0';
   var ATTR = 'data-hnp';
 
   var registry = Object.create(null);
@@ -523,7 +519,7 @@
     return !!(global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches);
   }
 
-  /* ---------- 事件总线 ---------- */
+  /* ---------- 浜嬩欢鎬荤嚎 ---------- */
   function on(evt, fn) {
     (bus[evt] || (bus[evt] = [])).push(fn);
     return function () { off(evt, fn); };
@@ -538,14 +534,14 @@
 
   function emit(evt, payload) {
     (bus[evt] || []).slice().forEach(function (fn) {
-      try { fn(payload); } catch (e) { warn('订阅者出错：' + evt, e); }
+      try { fn(payload); } catch (e) { warn('璁㈤槄鑰呭嚭閿欙細' + evt, e); }
     });
     (bus['*'] || []).slice().forEach(function (fn) {
-      try { fn({ type: evt, payload: payload }); } catch (e) { /* 通配订阅失败不影响主流程 */ }
+      try { fn({ type: evt, payload: payload }); } catch (e) { /* 閫氶厤璁㈤槄澶辫触涓嶅奖鍝嶄富娴佺▼ */ }
     });
   }
 
-  /* ---------- 带命名空间的安全存储 ---------- */
+  /* ---------- 甯﹀懡鍚嶇┖闂寸殑瀹夊叏瀛樺偍 ---------- */
   function store(ns) {
     var prefix = 'hnp:' + ns + ':';
     function run(fn, fallback) {
@@ -567,7 +563,7 @@
     };
   }
 
-  /* ---------- 复制到剪贴板（含 execCommand 兜底） ---------- */
+  /* ---------- 澶嶅埗鍒板壀璐存澘锛堝惈 execCommand 鍏滃簳锛?---------- */
   function copy(text) {
     var done = false;
     if (global.navigator && navigator.clipboard && navigator.clipboard.writeText) {
@@ -583,12 +579,12 @@
       ta.style.opacity = '0';
       global.document.body.appendChild(ta);
       ta.select();
-      try { global.document.execCommand('copy'); } catch (e) { warn('复制失败', e); }
+      try { global.document.execCommand('copy'); } catch (e) { warn('澶嶅埗澶辫触', e); }
       global.document.body.removeChild(ta);
     }
   }
 
-  /* ---------- 元素选项 ---------- */
+  /* ---------- 鍏冪礌閫夐」 ---------- */
   function readOpts(el) {
     var out = {};
     if (!el || !el.attributes) return out;
@@ -601,7 +597,7 @@
     return out;
   }
 
-  /* ---------- 上下文 ---------- */
+  /* ---------- 涓婁笅鏂?---------- */
   function makeCtx(name, spec, el) {
     var disposers = [];
     var opts = {};
@@ -647,17 +643,17 @@
     return ctx;
   }
 
-  /* ---------- 注册 ---------- */
+  /* ---------- 娉ㄥ唽 ---------- */
   function define(name, spec) {
     if (!name || typeof name !== 'string') {
-      warn('define 需要一个插件名');
+      warn('define 闇€瑕佷竴涓彃浠跺悕');
       return false;
     }
     if (!spec || typeof spec.mount !== 'function') {
-      warn('插件 "' + name + '" 缺少 mount 方法');
+      warn('鎻掍欢 "' + name + '" 缂哄皯 mount 鏂规硶');
       return false;
     }
-    if (registry[name]) warn('插件 "' + name + '" 已被覆盖注册');
+    if (registry[name]) warn('鎻掍欢 "' + name + '" 宸茶瑕嗙洊娉ㄥ唽');
     else order.push(name);
     registry[name] = spec;
     return true;
@@ -666,20 +662,19 @@
   function defined(name) { return !!registry[name]; }
   function plugins() { return order.slice(); }
 
-  /* ---------- 挂载 ---------- */
+  /* ---------- 鎸傝浇 ---------- */
   function mountOne(el, name) {
     var spec = registry[name];
-    if (!spec) { warn('插件 "' + name + '" 未注册，已跳过'); return false; }
+    if (!spec) { warn('鎻掍欢 "' + name + '" 鏈敞鍐岋紝宸茶烦杩?); return false; }
 
     var set = mounted.get(el);
     if (!set) { set = Object.create(null); mounted.set(el, set); }
-    if (set[name]) return false;              // 幂等：同一元素同一插件只挂一次
-
+    if (set[name]) return false;              // 骞傜瓑锛氬悓涓€鍏冪礌鍚屼竴鎻掍欢鍙寕涓€娆?
     var ctx = makeCtx(name, spec, el);
     try {
       spec.mount(el, ctx);
     } catch (e) {
-      warn('插件 "' + name + '" 挂载失败', e);
+      warn('鎻掍欢 "' + name + '" 鎸傝浇澶辫触', e);
       ctx.dispose();
       return false;
     }
@@ -709,7 +704,7 @@
     return count;
   }
 
-  /* ---------- 卸载 ---------- */
+  /* ---------- 鍗歌浇 ---------- */
   function unmount(root, name) {
     var scope = root || global.document;
     var removed = 0;
@@ -719,7 +714,7 @@
           item.el !== scope && !scope.contains(item.el)) return;
 
       var spec = registry[item.name];
-      try { if (spec && typeof spec.unmount === 'function') spec.unmount(item.el, item.ctx); } catch (e) { warn('插件 "' + item.name + '" 卸载失败', e); }
+      try { if (spec && typeof spec.unmount === 'function') spec.unmount(item.el, item.ctx); } catch (e) { warn('鎻掍欢 "' + item.name + '" 鍗歌浇澶辫触', e); }
       item.ctx.dispose();
 
       var set = mounted.get(item.el);
@@ -733,7 +728,7 @@
     return removed;
   }
 
-  /* ---------- 自检信息（给 demo 与测试用） ---------- */
+  /* ---------- 鑷淇℃伅锛堢粰 demo 涓庢祴璇曠敤锛?---------- */
   function inspect() {
     var byName = {};
     live.forEach(function (item) { byName[item.name] = (byName[item.name] || 0) + 1; });
@@ -745,13 +740,13 @@
     };
   }
 
-  /* ---------- 按名取用 ---------- */
+  /* ---------- 鎸夊悕鍙栫敤 ---------- */
   function use(name) {
-    if (!registry[name]) warn('插件 "' + name + '" 未注册');
+    if (!registry[name]) warn('鎻掍欢 "' + name + '" 鏈敞鍐?);
     return { mount: function (root) { return mount(root, { plugins: [name] }); } };
   }
 
-  /* ---------- 启动 ---------- */
+  /* ---------- 鍚姩 ---------- */
   function boot() {
     if (booted) return;
     booted = true;
@@ -1574,33 +1569,33 @@
       HNP.mount(document);
       HNP.mount(document);
       var after = HNP.inspect().installed;
-      show('重复挂载三次：' + before + ' → ' + after + '（应相等）');
+      show('閲嶅鎸傝浇涓夋锛? + before + ' 鈫?' + after + '锛堝簲鐩哥瓑锛?);
     });
 
     document.getElementById('btn-unmount').addEventListener('click', function () {
       var n = HNP.unmount(document, 'tabs');
-      show('已卸载 tabs 实例数：' + n);
+      show('宸插嵏杞?tabs 瀹炰緥鏁帮細' + n);
     });
 
     document.getElementById('btn-remount').addEventListener('click', function () {
       HNP.use('tabs').mount(document);
-      show('已重新挂载 tabs');
+      show('宸查噸鏂版寕杞?tabs');
     });
 
     document.getElementById('btn-boom').addEventListener('click', function () {
-      HNP.define('boom', { mount: function () { throw new Error('故意失败：验证降级'); } });
+      HNP.define('boom', { mount: function () { throw new Error('鏁呮剰澶辫触锛氶獙璇侀檷绾?); } });
       var box = document.createElement('div');
       box.setAttribute('data-hnp', 'boom theme');
       box.className = 'card';
-      box.textContent = '这个块同时挂了 boom（会抛错）与 theme（正常）——坏的那个只 warn。';
+      box.textContent = '杩欎釜鍧楀悓鏃舵寕浜?boom锛堜細鎶涢敊锛変笌 theme锛堟甯革級鈥斺€斿潖鐨勯偅涓彧 warn銆?;
       document.getElementById('s9').appendChild(box);
       HNP.mount(document.getElementById('s9'));
-      show('坏插件已注入：boom 挂载失败、不计入 installed；同块的 theme 仍正常挂载（故 theme 计为 2）');
+      show('鍧忔彃浠跺凡娉ㄥ叆锛歜oom 鎸傝浇澶辫触銆佷笉璁″叆 installed锛涘悓鍧楃殑 theme 浠嶆甯告寕杞斤紙鏁?theme 璁′负 2锛?);
     });
 
     document.getElementById('btn-inspect').addEventListener('click', function () { show('HNP.inspect()'); });
 
-    HNP.on('hnp:ready', function (e) { show('自动挂载完成，挂载 ' + e.mounted + ' 个实例'); });
+    HNP.on('hnp:ready', function (e) { show('鑷姩鎸傝浇瀹屾垚锛屾寕杞?' + e.mounted + ' 涓疄渚?); });
   })();
 </script>
 </body>

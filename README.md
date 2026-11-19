@@ -84,7 +84,34 @@ demo/index.html     全部能力的演示页，含自检面板
 demo/single.html    构建产物：全内联单文件，可离线双击
 build/inline.mjs    内联构建脚本
 docs/               API 与插件规范
+skill/              分发用技能 hnp-scaffold（见下）
+VERSION / CHANGELOG.md
 ```
+
+## 技能：把这套装进别的项目
+
+`skill/` 是 `hnp-scaffold` 技能，与库同版本发布。它负责把 `src/` 与 `plugins/` 拷进目标项目、按需裁剪插件、生成演示页，可选建公开仓库并开 Pages。
+
+```bash
+node skill/scripts/scaffold.mjs --dir <目标目录> --title "..." --git
+```
+
+生成的项目里会有三层，职责不混：
+
+| 文件 | 归谁 | 升级时 |
+| --- | --- | --- |
+| `src/hnp.js`、`src/hnp.css`、`plugins/*` | 上游 | 整份替换 |
+| `src/hnp-theme.css` | 使用者 | 永不触碰 |
+| `.hnp-lock.json` | 工具 | 记录版本、上游 commit、每文件哈希 |
+
+改配色写 `hnp-theme.css`，不要改 `hnp.css`。以后上游发新版，用升级命令按哈希判断哪些文件没被动过：
+
+```bash
+node skill/scripts/upgrade.mjs --dir <项目>            # 预览
+node skill/scripts/upgrade.mjs --dir <项目> --apply    # 执行
+```
+
+`skill/assets/template/` 是**生成物**，由 `node skill/scripts/sync-template.mjs` 从仓内 `src/` 与 `plugins/` 重建并写入版本戳。不要手改模板。
 
 ## 构建单文件版
 
