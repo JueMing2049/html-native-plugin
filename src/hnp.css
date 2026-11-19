@@ -77,8 +77,10 @@
 .hnp-chip.on{color:var(--jade);border-color:rgba(111,214,196,.45);background:rgba(111,214,196,.1)}
 
 /* ---------- 渐入 / 数字 / 条形 ---------- */
-.hnp-reveal{opacity:0;transform:translateY(12px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
-.hnp-reveal.in{opacity:1;transform:none}
+/* 只有 reveal 插件真实挂载后（.hnp-anim）才隐藏待渐入内容；插件未引时内容默认可见 */
+.hnp-reveal{transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.hnp-anim .hnp-reveal{opacity:0;transform:translateY(12px)}
+.hnp-anim .hnp-reveal.in{opacity:1;transform:none}
 .hnp-bar{width:0;transition:width .9s var(--ease);background:var(--jade);height:6px;border-radius:99px}
 .hnp-bar.in{width:var(--w,60%)}
 
@@ -231,14 +233,11 @@
 
 /* ---------- 降级安全 ---------- */
 @media (prefers-reduced-motion: reduce){
-  .hnp-reveal{opacity:1;transform:none;transition:none}
+  .hnp-anim .hnp-reveal{opacity:1;transform:none;transition:none}
   .hnp-bar{transition:none}
   .hnp-flash{animation:none}
   .hnp-tl__i{opacity:1;transition:none}
 }
-.js .hnp-reveal{opacity:0}
-.js .hnp-reveal.in{opacity:1}
-html:not(.js) .hnp-reveal{opacity:1;transform:none}
 
 @media (max-width:760px){
   .hnp-scrolly{grid-template-columns:1fr}

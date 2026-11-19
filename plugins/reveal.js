@@ -52,6 +52,8 @@
     });
   }
 
+  var active = 0;
+
   HNP.define('reveal', {
     defaults: { delay: '1600' },
     mount: function (el, ctx) {
@@ -59,6 +61,11 @@
         el.querySelectorAll('.hnp-reveal, [data-hnp-count], .hnp-bar')
       );
       if (el.matches && el.matches('.hnp-reveal')) nodes.unshift(el);
+
+      // 只有本插件挂上之后才隐藏待渐入内容，避免"引了 CSS 没引 JS"时内容凭空消失
+      active++;
+      document.documentElement.classList.add('hnp-anim');
+
       if (!nodes.length) return;
 
       function show(node) {
@@ -90,6 +97,11 @@
           if (n.getBoundingClientRect().top < vh * 1.05) show(n);
         });
       });
+    },
+
+    unmount: function () {
+      active = Math.max(0, active - 1);
+      if (!active) document.documentElement.classList.remove('hnp-anim');
     }
   });
 })();
