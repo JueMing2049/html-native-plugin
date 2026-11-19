@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark" data-tone="pro">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="dark light" />
+<title>HNP · HTML 原生交互插件</title>
+<script>document.documentElement.classList.add('js')</script>
+<link rel="stylesheet" href="../src/hnp.css" />
+<style>
+  /* 本页只写版面；交互与配色全部来自 hnp.css */
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:78px}
+  body{
+    margin:0;color:var(--txt);background:
+      radial-gradient(1100px 640px at 82% -12%,rgba(184,146,212,.14),transparent 55%),
+      radial-gradient(820px 520px at 6% 8%,rgba(111,214,196,.08),transparent 50%),
+      var(--bg);
+    font-family:var(--sans);font-size:16px;line-height:1.78;-webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--jade);text-decoration:none;border-bottom:1px solid rgba(111,214,196,.28)}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+  .bar{
+    position:sticky;top:0;z-index:60;backdrop-filter:blur(14px);
+    background:rgba(11,9,16,.82);border-bottom:1px solid var(--line);
+  }
+  [data-theme="light"] .bar{background:rgba(247,244,239,.86)}
+  .bar__in{max-width:1080px;margin:0 auto;padding:10px 28px;display:flex;align-items:center;gap:10px}
+  .brand{font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--txt3)}
+  .brand b{color:var(--jade);font-weight:500}
+  .bar__sp{flex:1}
+  .layout{display:grid;grid-template-columns:190px minmax(0,1fr);gap:44px;padding:34px 0 96px;align-items:start}
+  h1{font-family:var(--serif);font-size:clamp(28px,4vw,40px);line-height:1.25;margin:0 0 14px;font-weight:600}
+  h1 em{font-style:normal;color:var(--jade)}
+  .lead{color:var(--txt2);font-size:16px;margin:0 0 8px;max-width:640px}
+  .kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.2em;color:var(--cu);text-transform:uppercase;margin-bottom:14px}
+  section{padding-top:44px}
+  h2{font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;color:var(--txt3);text-transform:uppercase;
+     margin:0 0 16px;font-weight:400;display:flex;align-items:center;gap:12px}
+  h2::after{content:"";flex:1;height:1px;background:var(--line)}
+  h3{font-family:var(--serif);font-size:17px;margin:0 0 10px;font-weight:600}
+  p{margin:0 0 12px}
+  .muted{color:var(--txt2);font-size:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-bottom:16px}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+  .kpi{font-family:var(--mono);font-size:30px;color:var(--jade);line-height:1.2}
+  .kpi small{display:block;font-family:var(--sans);font-size:12.5px;color:var(--txt3);margin-top:4px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .out{font-family:var(--mono);font-size:11.5px;color:var(--txt3);white-space:pre-wrap;word-break:break-all}
+  .tag-item{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 14px;margin-bottom:8px;font-size:14px;color:var(--txt2)}
+  html[data-tone="plain"] .pro-only{display:none}
+  html[data-tone="pro"] .plain-only{display:none}
+  @media (max-width:820px){
+    .layout{grid-template-columns:1fr;gap:0}
+    .hnp-toc{display:none}
+  }
+</style>
+</head>
+<body data-hnp="anno">
+
+<div class="bar">
+  <div class="bar__in">
+    <span class="brand">HNP <b>v0.1.0</b></span>
+    <span class="bar__sp"></span>
+    <button class="hnp-btn" type="button" data-hnp="tone">通俗版</button>
+    <button class="hnp-btn" type="button" data-hnp="theme">浅色</button>
+    <button class="hnp-btn" type="button" data-hnp="copy-md">复制 Markdown</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <header style="padding:56px 0 6px">
+    <div class="kicker">HTML Native Plugin</div>
+    <h1>页面本来就会动，<em>只是没人告诉它</em></h1>
+    <p class="lead">
+      一份 <code>hnp.js</code> 加一个 <code>data-hnp</code>，静态 HTML 就长出标签页、筛选、批注、决策卡。
+      不装任何东西，双击就能用；十二个插件各是一个文件，用哪个引哪个。
+    </p>
+    <p class="muted plain-only">说白了：以前这些交互得靠一个框架、一个构建、一个服务器。现在只要一行 script，谁打开都能点。</p>
+  </header>
+
+  <div class="layout">
+
+    <nav class="hnp-toc" data-hnp="toc">
+      <a href="#s1">标签页</a>
+      <a href="#s2">筛选</a>
+      <a href="#s3">对比滑块</a>
+      <a href="#s4">决策卡</a>
+      <a href="#s5">渐入与数字</a>
+      <a href="#s6">滚动叙事</a>
+      <a href="#s7">时间轴</a>
+      <a href="#s8">就地批注</a>
+      <a href="#s9">自检面板</a>
+    </nav>
+
+    <main id="hnp-md-source">
+
+      <section id="s1">
+        <h2>01 · 标签页 tabs</h2>
+        <div class="hnp-tabs" data-hnp="tabs">
+          <div class="hnp-tabs__bar">
+            <button class="hnp-tab" type="button">它是什么</button>
+            <button class="hnp-tab" type="button">怎么接</button>
+            <button class="hnp-tab" type="button">为什么不用框架</button>
+          </div>
+          <div class="hnp-pane">
+            <p>一个注册制内核加十二个独立插件。每个插件只认自己的 <code>data-hnp</code>，互不知道对方存在。</p>
+          </div>
+          <div class="hnp-pane">
+            <p><code>&lt;script src="hnp.js"&gt;&lt;/script&gt;</code> 之后写 <code>&lt;div data-hnp="tabs"&gt;</code>，剩下的交给约定。</p>
+          </div>
+          <div class="hnp-pane">
+            <p>框架要编译、要产物、要部署。这里要的是一个能发邮件、能离线双击、十年后还能打开的 HTML。</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="s2">
+        <h2>02 · 筛选 filter</h2>
+        <div data-hnp-scope>
+          <div data-hnp="filter">
+            <div class="hnp-chips">
+              <button class="hnp-chip on" type="button" data-k="all">全部</button>
+              <button class="hnp-chip" type="button" data-k="结构">结构</button>
+              <button class="hnp-chip" type="button" data-k="交互">交互</button>
+              <button class="hnp-chip" type="button" data-k="交付">交付</button>
+            </div>
+            <div class="tag-item" data-hnp-tags="结构">注册表、生命周期、幂等记账</div>
+            <div class="tag-item" data-hnp-tags="交互 结构">选中即批、决策卡落库</div>
+            <div class="tag-item" data-hnp-tags="交互">拖拽对比、方向键切换</div>
+            <div class="tag-item" data-hnp-tags="交付">单文件内联、断网可用</div>
+            <div class="tag-item" data-hnp-tags="交付 结构">零依赖、无构建也能跑</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="s3">
+        <h2>03 · 对比滑块 compare</h2>
+        <div class="hnp-cmp" data-hnp="compare">
+          <div class="hnp-cmp__a">
+            <h3>不用 HNP</h3>
+            <p class="muted">每个页面重写一遍事件绑定；换个人接手就得重新读一遍 boot()；多实例互相踩状态。</p>
+          </div>
+          <div class="hnp-cmp__b">
+            <h3>用 HNP</h3>
+            <p class="muted">声明式挂载、可卸载、幂等；状态按插件命名空间隔离；坏插件只 warn 不拖垮页面。</p>
+          </div>
+          <div class="hnp-cmp__h" title="拖动对比"></div>
+        </div>
+      </section>
+
+      <section id="s4">
+        <h2>04 · 决策卡 decision</h2>
+        <div class="hnp-dcard" data-hnp="decision" data-id="D-1" data-title="插件内核要不要管样式？">
+          <div class="hnp-dcard__q">内核要不要负责样式，还是只做调度？</div>
+          <div class="hnp-dopts">
+            <button class="hnp-dopt" type="button" data-key="split">分离：内核管调度，样式在 hnp.css</button>
+            <button class="hnp-dopt" type="button" data-key="inline">内联：每个插件自带样式</button>
+            <button class="hnp-dopt" type="button" data-key="none">都不管，交给使用者</button>
+          </div>
+          <div style="margin-bottom:12px">
+            <input data-note type="text" placeholder="补一句理由（可选）" style="width:100%;box-sizing:border-box;font-family:var(--sans);font-size:13px;padding:9px 11px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--txt)" />
+          </div>
+          <div class="hnp-dcard__f">
+            <button class="hnp-btn pri" type="button" data-act="confirm">记下这个决定</button>
+            <span class="hnp-dcard__out"></span>
+          </div>
+        </div>
+      </section>
+
+      <section id="s5" data-hnp="reveal">
+        <h2>05 · 渐入与数字 reveal</h2>
+        <div class="grid2">
+          <div class="hnp-reveal">
+            <div class="kpi"><span data-hnp-count="12">0</span><small>个内置插件</small></div>
+          </div>
+          <div class="hnp-reveal">
+            <div class="kpi"><span data-hnp-count="0" data-hnp-dec="1">0</span><small>运行时依赖（个）</small></div>
+          </div>
+        </div>
+        <div class="hnp-reveal" style="margin-top:18px">
+          <p class="muted" style="margin-bottom:6px">单文件内联占比</p>
+          <div class="hnp-bar" data-hnp-w="94%"></div>
+        </div>
+      </section>
+
+      <section id="s6">
+        <h2>06 · 滚动叙事 scrolly</h2>
+        <div class="hnp-scrolly" data-hnp="scrolly">
+          <div>
+            <div class="hnp-step"><h4>一 · 写好 HTML</h4><p>结构先站住，交互后加。没有 JS 也是完整的一篇。</p></div>
+            <div class="hnp-step"><h4>二 · 贴 data-hnp</h4><p>想要哪个能力，就在容器上写哪个名字，可以写多个。</p></div>
+            <div class="hnp-step"><h4>三 · 交付</h4><p>单文件内联后离线可开；要改就改源块，不要改产物。</p></div>
+          </div>
+          <div class="hnp-scrolly__g">
+            <div data-hnp-fig="1">
+              <h3>结构</h3>
+              <p class="muted">标题、段落、表格。此时没有任何脚本。</p>
+            </div>
+            <div data-hnp-fig="2">
+              <h3>挂载</h3>
+              <p class="muted">内核扫到 <code>data-hnp</code>，把对应插件装上去。</p>
+            </div>
+            <div data-hnp-fig="3">
+              <h3>内联</h3>
+              <p class="muted">css 与 js 内联进同一份 HTML，行为一致、可离线。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="s7">
+        <h2>07 · 时间轴 timeline</h2>
+        <div class="hnp-tl" data-hnp="timeline">
+          <div class="hnp-tl__i"><div class="hnp-tl__d">STEP 01</div><div class="hnp-tl__t">内核先行</div><p class="hnp-tl__p">注册表、上下文、幂等记账先立住，插件才有地方挂。</p></div>
+          <div class="hnp-tl__i"><div class="hnp-tl__d">STEP 02</div><div class="hnp-tl__t">插件跟进</div><p class="hnp-tl__p">每个插件只解决一件事，能单独引、单独卸。</p></div>
+          <div class="hnp-tl__i"><div class="hnp-tl__d">STEP 03</div><div class="hnp-tl__t">降级兜底</div><p class="hnp-tl__p">动画可停、观察器可退、单插件失败不连坐。</p></div>
+        </div>
+      </section>
+
+      <section id="s8">
+        <h2>08 · 就地批注 anno</h2>
+        <p class="muted">选中这句话里的任意片段，页面会浮出一个「＋ 批注」。写下意见，右下角篮子收着，可导出与
+          <code>kunpeng-ops</code> 台账同构的 JSON。</p>
+        <div class="card" data-block="demo-anno-1" style="position:relative">
+          <h3>可被批注的块</h3>
+          <p class="muted">这一整块带 <code>data-block</code>，里面任意一句都能被选中批注。批注会记下块名、原文、类型和时间。</p>
+        </div>
+      </section>
+
+      <section id="s9">
+        <h2>09 · 自检面板</h2>
+        <div class="card">
+          <div class="row">
+            <button class="hnp-btn" type="button" id="btn-mount3">重复挂载 ×3</button>
+            <button class="hnp-btn" type="button" id="btn-unmount">卸载 tabs</button>
+            <button class="hnp-btn" type="button" id="btn-remount">重新挂载</button>
+            <button class="hnp-btn" type="button" id="btn-boom">注入坏插件</button>
+            <button class="hnp-btn" type="button" id="btn-inspect">读状态</button>
+          </div>
+          <pre class="out" id="probe" style="margin:14px 0 0">点一下上面的按钮，这里显示 HNP.inspect() 的结果。</pre>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script src="../src/hnp.js"></script>
+<script src="../plugins/theme.js"></script>
+<script src="../plugins/tone.js"></script>
+<script src="../plugins/toc.js"></script>
+<script src="../plugins/tabs.js"></script>
+<script src="../plugins/filter.js"></script>
+<script src="../plugins/reveal.js"></script>
+<script src="../plugins/compare.js"></script>
+<script src="../plugins/decision.js"></script>
+<script src="../plugins/anno.js"></script>
+<script src="../plugins/scrolly.js"></script>
+<script src="../plugins/timeline.js"></script>
+<script src="../plugins/copy-md.js"></script>
+<script>
+  (function () {
+    var probe = document.getElementById('probe');
+    function show(label) {
+      probe.textContent = label + '\n' + JSON.stringify(HNP.inspect(), null, 2);
+    }
+
+    HNP.on('decision:confirm', function (rec) {
+      console.log('[decision:confirm]', rec);
+    });
+    HNP.on('anno:add', function (item) {
+      console.log('[anno:add]', item);
+    });
+
+    document.getElementById('btn-mount3').addEventListener('click', function () {
+      var before = HNP.inspect().installed;
+      HNP.mount(document);
+      HNP.mount(document);
+      HNP.mount(document);
+      var after = HNP.inspect().installed;
+      show('重复挂载三次：' + before + ' → ' + after + '（应相等）');
+    });
+
+    document.getElementById('btn-unmount').addEventListener('click', function () {
+      var n = HNP.unmount(document, 'tabs');
+      show('已卸载 tabs 实例数：' + n);
+    });
+
+    document.getElementById('btn-remount').addEventListener('click', function () {
+      HNP.use('tabs').mount(document);
+      show('已重新挂载 tabs');
+    });
+
+    document.getElementById('btn-boom').addEventListener('click', function () {
+      HNP.define('boom', { mount: function () { throw new Error('故意失败：验证降级'); } });
+      var box = document.createElement('div');
+      box.setAttribute('data-hnp', 'boom theme');
+      box.className = 'card';
+      box.textContent = '这个块同时挂了 boom（会抛错）与 theme（正常）——坏的那个只 warn。';
+      document.getElementById('s9').appendChild(box);
+      HNP.mount(document.getElementById('s9'));
+      show('坏插件已注入：boom 挂载失败、不计入 installed；同块的 theme 仍正常挂载（故 theme 计为 2）');
+    });
+
+    document.getElementById('btn-inspect').addEventListener('click', function () { show('HNP.inspect()'); });
+
+    HNP.on('hnp:ready', function (e) { show('自动挂载完成，挂载 ' + e.mounted + ' 个实例'); });
+  })();
+</script>
+</body>
+</html>

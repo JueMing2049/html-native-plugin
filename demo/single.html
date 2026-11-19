@@ -1,0 +1,1596 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark" data-tone="pro">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="dark light" />
+<title>HNP · HTML 原生交互插件</title>
+<script>document.documentElement.classList.add('js')</script>
+<style>
+/*!
+ * HNP · HTML Native Plugin  v0.1.0 — 样式层
+ * 设计 token 沿用 KunPeng Report Kit（零依赖 · 深色优先 · 国风赛博）
+ * 组件类名统一 hnp- 前缀，避免与宿主页面既有样式互踩。
+ */
+
+:root{
+  --bg:#0b0910; --bg2:#0f0d13; --panel:#191521; --panel2:#15111c; --panel3:#12101a;
+  --line:#2c2538; --line2:#443a55;
+  --txt:#eae4f0; --txt2:#ab9fbb; --txt3:#77708a;
+  --jade:#6fd6c4; --cu:#e0a878; --vi:#b892d4; --amber:#e8c87a;
+  --green:#8fd9a0; --red:#e88a8a; --blue:#7fc8f8;
+  --r:14px; --rs:10px;
+  --sh:0 24px 80px rgba(0,0,0,.45);
+  --serif:"Noto Serif SC","Songti SC","STSong","SimSun",Georgia,serif;
+  --sans:"Noto Sans SC","Microsoft YaHei","PingFang SC",system-ui,-apple-system,sans-serif;
+  --mono:"JetBrains Mono","SFMono-Regular",Consolas,"Liberation Mono",monospace;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+
+[data-theme="light"]{
+  --bg:#f7f4ef; --bg2:#efeae2; --panel:#fffdf9; --panel2:#f2ede5; --panel3:#e9e2d8;
+  --line:#d8cfc3; --line2:#bfb2a3;
+  --txt:#1b1620; --txt2:#5d5367; --txt3:#8a7f93;
+  --jade:#177f72; --cu:#a96332; --vi:#6f4a8c; --amber:#8a6415;
+  --green:#2f7a4c; --red:#a13d3d; --blue:#2b6f9f;
+  --sh:0 24px 70px rgba(44,30,20,.12);
+}
+
+/* ---------- 通用按钮 ---------- */
+.hnp-btn{
+  font-family:var(--mono);font-size:12px;line-height:1.6;
+  color:var(--txt2);background:transparent;
+  border:1px solid var(--line2);border-radius:9px;
+  padding:6px 12px;cursor:pointer;
+  transition:color .2s,border-color .2s,background .2s;
+}
+.hnp-btn:hover{color:var(--jade);border-color:var(--jade)}
+.hnp-btn.pri{color:var(--jade);border-color:rgba(111,214,196,.45);background:rgba(111,214,196,.08)}
+.hnp-btn.pri:hover{background:rgba(111,214,196,.16)}
+.hnp-btn[aria-pressed="true"]{color:var(--jade);border-color:var(--jade)}
+
+/* ---------- 目录 ---------- */
+.hnp-toc{
+  position:sticky;top:82px;font-size:13px;
+  border-left:1px solid var(--line);padding-left:15px;
+  max-height:calc(100vh - 110px);overflow-y:auto;
+}
+.hnp-toc a{
+  display:block;color:var(--txt3);text-decoration:none;
+  padding:3px 0;border:0;transition:color .18s;
+}
+.hnp-toc a:hover{color:var(--txt)}
+.hnp-toc a.on{color:var(--jade)}
+
+/* ---------- 标签页 ---------- */
+.hnp-tabs{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--panel)}
+.hnp-tabs__bar{display:flex;gap:2px;border-bottom:1px solid var(--line);background:var(--panel2);overflow-x:auto}
+.hnp-tab{
+  font-family:var(--mono);font-size:12.5px;color:var(--txt3);
+  background:transparent;border:0;border-bottom:2px solid transparent;
+  padding:11px 16px;cursor:pointer;white-space:nowrap;transition:.18s;
+}
+.hnp-tab:hover{color:var(--txt)}
+.hnp-tab[aria-selected="true"]{color:var(--jade);border-bottom-color:var(--jade);background:var(--panel)}
+.hnp-pane{display:none;padding:18px 20px;font-size:14px;color:var(--txt2);line-height:1.8}
+.hnp-pane.on{display:block}
+
+/* ---------- 筛选 ---------- */
+.hnp-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.hnp-chip{
+  font-family:var(--mono);font-size:11.5px;color:var(--txt3);
+  background:var(--panel2);border:1px solid var(--line);border-radius:99px;
+  padding:5px 13px;cursor:pointer;transition:.2s;
+}
+.hnp-chip:hover{color:var(--txt);border-color:var(--line2)}
+.hnp-chip.on{color:var(--jade);border-color:rgba(111,214,196,.45);background:rgba(111,214,196,.1)}
+
+/* ---------- 渐入 / 数字 / 条形 ---------- */
+.hnp-reveal{opacity:0;transform:translateY(12px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.hnp-reveal.in{opacity:1;transform:none}
+.hnp-bar{width:0;transition:width .9s var(--ease);background:var(--jade);height:6px;border-radius:99px}
+.hnp-bar.in{width:var(--w,60%)}
+
+/* ---------- 对比滑块 ---------- */
+.hnp-cmp{
+  position:relative;overflow:hidden;border:1px solid var(--line);
+  border-radius:var(--r);--cut:50%;user-select:none;touch-action:none;
+}
+.hnp-cmp__a,.hnp-cmp__b{display:block;width:100%;padding:26px 24px;box-sizing:border-box}
+.hnp-cmp__a{background:var(--panel2)}
+.hnp-cmp__b{
+  position:absolute;inset:0;background:var(--panel3);
+  clip-path:inset(0 calc(100% - var(--cut)) 0 0);
+}
+.hnp-cmp__h{
+  position:absolute;top:0;bottom:0;left:var(--cut);width:2px;
+  background:var(--jade);cursor:ew-resize;transform:translateX(-1px);
+}
+.hnp-cmp__h::after{
+  content:"";position:absolute;top:50%;left:50%;width:14px;height:14px;
+  margin:-7px 0 0 -7px;border-radius:50%;
+  background:var(--jade);box-shadow:0 0 0 4px rgba(111,214,196,.18);
+}
+
+/* ---------- 决策卡 ---------- */
+.hnp-dcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px}
+.hnp-dcard__q{font-family:var(--serif);font-size:16px;color:var(--txt);margin-bottom:14px;line-height:1.5}
+.hnp-dopts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.hnp-dopt{
+  font-size:13px;color:var(--txt2);background:var(--panel2);
+  border:1px solid var(--line);border-radius:var(--rs);
+  padding:9px 14px;cursor:pointer;text-align:left;transition:.18s;
+}
+.hnp-dopt:hover{border-color:var(--line2);color:var(--txt)}
+.hnp-dopt.sel{color:var(--jade);border-color:rgba(111,214,196,.5);background:rgba(111,214,196,.09)}
+.hnp-dcard__f{display:flex;align-items:center;gap:12px}
+.hnp-dcard__out{font-family:var(--mono);font-size:11.5px;color:var(--txt3)}
+
+/* ---------- 批注 ---------- */
+.hnp-anno-pop{
+  position:absolute;z-index:9000;display:none;
+  font-family:var(--mono);font-size:11.5px;color:var(--jade);
+  background:var(--panel);border:1px solid rgba(111,214,196,.45);
+  border-radius:99px;padding:5px 13px;cursor:pointer;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);
+}
+.hnp-anno-pop.on{display:block}
+.hnp-anno-form{
+  position:absolute;z-index:9001;display:none;width:320px;
+  background:var(--panel);border:1px solid var(--line2);
+  border-radius:var(--r);padding:14px;box-shadow:var(--sh);
+}
+.hnp-anno-form.on{display:block}
+.hnp-anno-form__q{
+  font-size:12px;color:var(--txt3);line-height:1.6;margin-bottom:10px;
+  border-left:2px solid var(--line2);padding-left:9px;
+}
+.hnp-anno-types{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.hnp-anno-type{
+  font-family:var(--mono);font-size:11px;color:var(--txt3);
+  background:transparent;border:1px solid var(--line);border-radius:99px;
+  padding:3px 10px;cursor:pointer;transition:.18s;
+}
+.hnp-anno-type.on{color:var(--jade);border-color:var(--jade);background:rgba(111,214,196,.1)}
+.hnp-anno-form textarea{
+  width:100%;box-sizing:border-box;resize:vertical;
+  font-family:var(--sans);font-size:13px;line-height:1.7;
+  color:var(--txt);background:var(--panel2);
+  border:1px solid var(--line);border-radius:var(--rs);padding:9px 11px;
+}
+.hnp-anno-form textarea:focus{outline:none;border-color:var(--jade)}
+.hnp-anno-form__f{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
+
+.hnp-anno-basket{
+  position:fixed;right:20px;bottom:20px;z-index:9002;width:320px;
+  background:var(--panel);border:1px solid var(--line2);
+  border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;
+  font-size:13px;
+}
+.hnp-anno-basket__h{
+  display:flex;align-items:center;gap:8px;cursor:pointer;
+  padding:11px 15px;border-bottom:1px solid var(--line);
+  font-family:var(--mono);font-size:11.5px;color:var(--txt2);
+}
+.hnp-anno-basket__h b{color:var(--jade)}
+.hnp-anno-basket__h i{margin-left:auto;font-style:normal;color:var(--txt3);font-size:10.5px}
+.hnp-anno-basket__b{display:none;max-height:42vh;overflow-y:auto}
+.hnp-anno-basket.open .hnp-anno-basket__b{display:block}
+.hnp-anno-basket__f{display:none;gap:8px;padding:11px 15px;border-top:1px solid var(--line)}
+.hnp-anno-basket.open .hnp-anno-basket__f{display:flex}
+.hnp-anno-item{padding:11px 15px;border-bottom:1px solid var(--line)}
+.hnp-anno-item__m{
+  display:flex;gap:8px;align-items:center;
+  font-family:var(--mono);font-size:10.5px;color:var(--txt3);margin-bottom:5px;
+}
+.hnp-anno-t{
+  font-family:var(--mono);font-size:10px;border:1px solid;border-radius:99px;
+  padding:1px 8px;line-height:1.6;
+}
+.hnp-anno-t[data-t="agree"]{color:var(--jade);border-color:rgba(111,214,196,.4)}
+.hnp-anno-t[data-t="reject"]{color:var(--red);border-color:rgba(232,138,138,.4)}
+.hnp-anno-t[data-t="hold"]{color:var(--amber);border-color:rgba(232,200,122,.4)}
+.hnp-anno-t[data-t="delegate"]{color:var(--vi);border-color:rgba(184,146,212,.4)}
+.hnp-anno-t[data-t="note"]{color:var(--blue);border-color:rgba(127,200,248,.4)}
+.hnp-anno-item__q{font-size:12.5px;color:var(--txt2);line-height:1.65;margin-bottom:5px}
+.hnp-anno-item__n{font-size:13px;color:var(--txt);line-height:1.7}
+.hnp-anno-item__x{
+  float:right;border:0;background:transparent;color:var(--txt3);
+  cursor:pointer;font-size:15px;line-height:1;padding:0 0 0 6px;
+}
+.hnp-anno-item__x:hover{color:var(--red)}
+.hnp-anno-badge{
+  display:inline-flex;align-items:center;gap:4px;vertical-align:middle;
+  margin-left:8px;font-family:var(--mono);font-size:10.5px;color:var(--cu);
+}
+.hnp-anno-badge i{width:5px;height:5px;border-radius:50%;background:var(--cu);display:block}
+.hnp-flash{animation:hnp-flash 900ms var(--ease)}
+@keyframes hnp-flash{
+  0%{background:rgba(224,168,120,.16)}
+  100%{background:transparent}
+}
+
+/* ---------- 滚动叙事 ---------- */
+.hnp-scrolly{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:start}
+.hnp-scrolly__g{
+  position:sticky;top:96px;background:var(--panel);border:1px solid var(--line);
+  border-radius:var(--r);padding:26px;min-height:220px;
+}
+.hnp-step{
+  padding:18px 0;border-bottom:1px solid var(--line);
+  color:var(--txt3);transition:color .3s;
+}
+.hnp-step:last-child{border-bottom:0}
+.hnp-step.on{color:var(--txt)}
+.hnp-step h4{font-family:var(--serif);font-size:15px;margin:0 0 6px;font-weight:600}
+.hnp-step p{margin:0;font-size:13.5px;line-height:1.75}
+
+/* ---------- 时间轴 ---------- */
+.hnp-tl{border-left:1px solid var(--line);padding-left:20px}
+.hnp-tl__i{position:relative;padding:0 0 24px 0;opacity:.45;transition:opacity .5s var(--ease)}
+.hnp-tl__i::before{
+  content:"";position:absolute;left:-24px;top:6px;width:7px;height:7px;
+  border-radius:50%;background:var(--line2);transition:background .4s;
+}
+.hnp-tl__i.on{opacity:1}
+.hnp-tl__i.on::before{background:var(--jade);box-shadow:0 0 0 4px rgba(111,214,196,.15)}
+.hnp-tl__d{font-family:var(--mono);font-size:10.5px;color:var(--cu);letter-spacing:.08em;margin-bottom:4px}
+.hnp-tl__t{font-family:var(--serif);font-size:15px;color:var(--txt);margin-bottom:3px}
+.hnp-tl__p{font-size:13px;color:var(--txt2);line-height:1.7;margin:0}
+
+/* ---------- 降级安全 ---------- */
+@media (prefers-reduced-motion: reduce){
+  .hnp-reveal{opacity:1;transform:none;transition:none}
+  .hnp-bar{transition:none}
+  .hnp-flash{animation:none}
+  .hnp-tl__i{opacity:1;transition:none}
+}
+.js .hnp-reveal{opacity:0}
+.js .hnp-reveal.in{opacity:1}
+html:not(.js) .hnp-reveal{opacity:1;transform:none}
+
+@media (max-width:760px){
+  .hnp-scrolly{grid-template-columns:1fr}
+  .hnp-scrolly__g{position:static}
+  .hnp-anno-basket{left:12px;right:12px;bottom:12px;width:auto}
+}
+
+</style>
+<style>
+  /* 本页只写版面；交互与配色全部来自 hnp.css */
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:78px}
+  body{
+    margin:0;color:var(--txt);background:
+      radial-gradient(1100px 640px at 82% -12%,rgba(184,146,212,.14),transparent 55%),
+      radial-gradient(820px 520px at 6% 8%,rgba(111,214,196,.08),transparent 50%),
+      var(--bg);
+    font-family:var(--sans);font-size:16px;line-height:1.78;-webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--jade);text-decoration:none;border-bottom:1px solid rgba(111,214,196,.28)}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+  .bar{
+    position:sticky;top:0;z-index:60;backdrop-filter:blur(14px);
+    background:rgba(11,9,16,.82);border-bottom:1px solid var(--line);
+  }
+  [data-theme="light"] .bar{background:rgba(247,244,239,.86)}
+  .bar__in{max-width:1080px;margin:0 auto;padding:10px 28px;display:flex;align-items:center;gap:10px}
+  .brand{font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--txt3)}
+  .brand b{color:var(--jade);font-weight:500}
+  .bar__sp{flex:1}
+  .layout{display:grid;grid-template-columns:190px minmax(0,1fr);gap:44px;padding:34px 0 96px;align-items:start}
+  h1{font-family:var(--serif);font-size:clamp(28px,4vw,40px);line-height:1.25;margin:0 0 14px;font-weight:600}
+  h1 em{font-style:normal;color:var(--jade)}
+  .lead{color:var(--txt2);font-size:16px;margin:0 0 8px;max-width:640px}
+  .kicker{font-family:var(--mono);font-size:11.5px;letter-spacing:.2em;color:var(--cu);text-transform:uppercase;margin-bottom:14px}
+  section{padding-top:44px}
+  h2{font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;color:var(--txt3);text-transform:uppercase;
+     margin:0 0 16px;font-weight:400;display:flex;align-items:center;gap:12px}
+  h2::after{content:"";flex:1;height:1px;background:var(--line)}
+  h3{font-family:var(--serif);font-size:17px;margin:0 0 10px;font-weight:600}
+  p{margin:0 0 12px}
+  .muted{color:var(--txt2);font-size:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-bottom:16px}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+  .kpi{font-family:var(--mono);font-size:30px;color:var(--jade);line-height:1.2}
+  .kpi small{display:block;font-family:var(--sans);font-size:12.5px;color:var(--txt3);margin-top:4px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .out{font-family:var(--mono);font-size:11.5px;color:var(--txt3);white-space:pre-wrap;word-break:break-all}
+  .tag-item{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 14px;margin-bottom:8px;font-size:14px;color:var(--txt2)}
+  html[data-tone="plain"] .pro-only{display:none}
+  html[data-tone="pro"] .plain-only{display:none}
+  @media (max-width:820px){
+    .layout{grid-template-columns:1fr;gap:0}
+    .hnp-toc{display:none}
+  }
+</style>
+</head>
+<body data-hnp="anno">
+
+<div class="bar">
+  <div class="bar__in">
+    <span class="brand">HNP <b>v0.1.0</b></span>
+    <span class="bar__sp"></span>
+    <button class="hnp-btn" type="button" data-hnp="tone">通俗版</button>
+    <button class="hnp-btn" type="button" data-hnp="theme">浅色</button>
+    <button class="hnp-btn" type="button" data-hnp="copy-md">复制 Markdown</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <header style="padding:56px 0 6px">
+    <div class="kicker">HTML Native Plugin</div>
+    <h1>页面本来就会动，<em>只是没人告诉它</em></h1>
+    <p class="lead">
+      一份 <code>hnp.js</code> 加一个 <code>data-hnp</code>，静态 HTML 就长出标签页、筛选、批注、决策卡。
+      不装任何东西，双击就能用；十二个插件各是一个文件，用哪个引哪个。
+    </p>
+    <p class="muted plain-only">说白了：以前这些交互得靠一个框架、一个构建、一个服务器。现在只要一行 script，谁打开都能点。</p>
+  </header>
+
+  <div class="layout">
+
+    <nav class="hnp-toc" data-hnp="toc">
+      <a href="#s1">标签页</a>
+      <a href="#s2">筛选</a>
+      <a href="#s3">对比滑块</a>
+      <a href="#s4">决策卡</a>
+      <a href="#s5">渐入与数字</a>
+      <a href="#s6">滚动叙事</a>
+      <a href="#s7">时间轴</a>
+      <a href="#s8">就地批注</a>
+      <a href="#s9">自检面板</a>
+    </nav>
+
+    <main id="hnp-md-source">
+
+      <section id="s1">
+        <h2>01 · 标签页 tabs</h2>
+        <div class="hnp-tabs" data-hnp="tabs">
+          <div class="hnp-tabs__bar">
+            <button class="hnp-tab" type="button">它是什么</button>
+            <button class="hnp-tab" type="button">怎么接</button>
+            <button class="hnp-tab" type="button">为什么不用框架</button>
+          </div>
+          <div class="hnp-pane">
+            <p>一个注册制内核加十二个独立插件。每个插件只认自己的 <code>data-hnp</code>，互不知道对方存在。</p>
+          </div>
+          <div class="hnp-pane">
+            <p><code>&lt;script src="hnp.js"&gt;&lt;/script&gt;</code> 之后写 <code>&lt;div data-hnp="tabs"&gt;</code>，剩下的交给约定。</p>
+          </div>
+          <div class="hnp-pane">
+            <p>框架要编译、要产物、要部署。这里要的是一个能发邮件、能离线双击、十年后还能打开的 HTML。</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="s2">
+        <h2>02 · 筛选 filter</h2>
+        <div data-hnp-scope>
+          <div data-hnp="filter">
+            <div class="hnp-chips">
+              <button class="hnp-chip on" type="button" data-k="all">全部</button>
+              <button class="hnp-chip" type="button" data-k="结构">结构</button>
+              <button class="hnp-chip" type="button" data-k="交互">交互</button>
+              <button class="hnp-chip" type="button" data-k="交付">交付</button>
+            </div>
+            <div class="tag-item" data-hnp-tags="结构">注册表、生命周期、幂等记账</div>
+            <div class="tag-item" data-hnp-tags="交互 结构">选中即批、决策卡落库</div>
+            <div class="tag-item" data-hnp-tags="交互">拖拽对比、方向键切换</div>
+            <div class="tag-item" data-hnp-tags="交付">单文件内联、断网可用</div>
+            <div class="tag-item" data-hnp-tags="交付 结构">零依赖、无构建也能跑</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="s3">
+        <h2>03 · 对比滑块 compare</h2>
+        <div class="hnp-cmp" data-hnp="compare">
+          <div class="hnp-cmp__a">
+            <h3>不用 HNP</h3>
+            <p class="muted">每个页面重写一遍事件绑定；换个人接手就得重新读一遍 boot()；多实例互相踩状态。</p>
+          </div>
+          <div class="hnp-cmp__b">
+            <h3>用 HNP</h3>
+            <p class="muted">声明式挂载、可卸载、幂等；状态按插件命名空间隔离；坏插件只 warn 不拖垮页面。</p>
+          </div>
+          <div class="hnp-cmp__h" title="拖动对比"></div>
+        </div>
+      </section>
+
+      <section id="s4">
+        <h2>04 · 决策卡 decision</h2>
+        <div class="hnp-dcard" data-hnp="decision" data-id="D-1" data-title="插件内核要不要管样式？">
+          <div class="hnp-dcard__q">内核要不要负责样式，还是只做调度？</div>
+          <div class="hnp-dopts">
+            <button class="hnp-dopt" type="button" data-key="split">分离：内核管调度，样式在 hnp.css</button>
+            <button class="hnp-dopt" type="button" data-key="inline">内联：每个插件自带样式</button>
+            <button class="hnp-dopt" type="button" data-key="none">都不管，交给使用者</button>
+          </div>
+          <div style="margin-bottom:12px">
+            <input data-note type="text" placeholder="补一句理由（可选）" style="width:100%;box-sizing:border-box;font-family:var(--sans);font-size:13px;padding:9px 11px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--txt)" />
+          </div>
+          <div class="hnp-dcard__f">
+            <button class="hnp-btn pri" type="button" data-act="confirm">记下这个决定</button>
+            <span class="hnp-dcard__out"></span>
+          </div>
+        </div>
+      </section>
+
+      <section id="s5" data-hnp="reveal">
+        <h2>05 · 渐入与数字 reveal</h2>
+        <div class="grid2">
+          <div class="hnp-reveal">
+            <div class="kpi"><span data-hnp-count="12">0</span><small>个内置插件</small></div>
+          </div>
+          <div class="hnp-reveal">
+            <div class="kpi"><span data-hnp-count="0" data-hnp-dec="1">0</span><small>运行时依赖（个）</small></div>
+          </div>
+        </div>
+        <div class="hnp-reveal" style="margin-top:18px">
+          <p class="muted" style="margin-bottom:6px">单文件内联占比</p>
+          <div class="hnp-bar" data-hnp-w="94%"></div>
+        </div>
+      </section>
+
+      <section id="s6">
+        <h2>06 · 滚动叙事 scrolly</h2>
+        <div class="hnp-scrolly" data-hnp="scrolly">
+          <div>
+            <div class="hnp-step"><h4>一 · 写好 HTML</h4><p>结构先站住，交互后加。没有 JS 也是完整的一篇。</p></div>
+            <div class="hnp-step"><h4>二 · 贴 data-hnp</h4><p>想要哪个能力，就在容器上写哪个名字，可以写多个。</p></div>
+            <div class="hnp-step"><h4>三 · 交付</h4><p>单文件内联后离线可开；要改就改源块，不要改产物。</p></div>
+          </div>
+          <div class="hnp-scrolly__g">
+            <div data-hnp-fig="1">
+              <h3>结构</h3>
+              <p class="muted">标题、段落、表格。此时没有任何脚本。</p>
+            </div>
+            <div data-hnp-fig="2">
+              <h3>挂载</h3>
+              <p class="muted">内核扫到 <code>data-hnp</code>，把对应插件装上去。</p>
+            </div>
+            <div data-hnp-fig="3">
+              <h3>内联</h3>
+              <p class="muted">css 与 js 内联进同一份 HTML，行为一致、可离线。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="s7">
+        <h2>07 · 时间轴 timeline</h2>
+        <div class="hnp-tl" data-hnp="timeline">
+          <div class="hnp-tl__i"><div class="hnp-tl__d">STEP 01</div><div class="hnp-tl__t">内核先行</div><p class="hnp-tl__p">注册表、上下文、幂等记账先立住，插件才有地方挂。</p></div>
+          <div class="hnp-tl__i"><div class="hnp-tl__d">STEP 02</div><div class="hnp-tl__t">插件跟进</div><p class="hnp-tl__p">每个插件只解决一件事，能单独引、单独卸。</p></div>
+          <div class="hnp-tl__i"><div class="hnp-tl__d">STEP 03</div><div class="hnp-tl__t">降级兜底</div><p class="hnp-tl__p">动画可停、观察器可退、单插件失败不连坐。</p></div>
+        </div>
+      </section>
+
+      <section id="s8">
+        <h2>08 · 就地批注 anno</h2>
+        <p class="muted">选中这句话里的任意片段，页面会浮出一个「＋ 批注」。写下意见，右下角篮子收着，可导出与
+          <code>kunpeng-ops</code> 台账同构的 JSON。</p>
+        <div class="card" data-block="demo-anno-1" style="position:relative">
+          <h3>可被批注的块</h3>
+          <p class="muted">这一整块带 <code>data-block</code>，里面任意一句都能被选中批注。批注会记下块名、原文、类型和时间。</p>
+        </div>
+      </section>
+
+      <section id="s9">
+        <h2>09 · 自检面板</h2>
+        <div class="card">
+          <div class="row">
+            <button class="hnp-btn" type="button" id="btn-mount3">重复挂载 ×3</button>
+            <button class="hnp-btn" type="button" id="btn-unmount">卸载 tabs</button>
+            <button class="hnp-btn" type="button" id="btn-remount">重新挂载</button>
+            <button class="hnp-btn" type="button" id="btn-boom">注入坏插件</button>
+            <button class="hnp-btn" type="button" id="btn-inspect">读状态</button>
+          </div>
+          <pre class="out" id="probe" style="margin:14px 0 0">点一下上面的按钮，这里显示 HNP.inspect() 的结果。</pre>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script>
+/*!
+ * HNP · HTML Native Plugin  v0.1.0
+ * 零依赖 · 原生 API · 注册制交互插件运行时
+ * 加一行 script、写一个 data-hnp，页面就长出交互；双击 HTML 即可用，不需要任何人安装东西。
+ */
+(function (global) {
+  'use strict';
+
+  var VERSION = '0.1.0';
+  var ATTR = 'data-hnp';
+
+  var registry = Object.create(null);
+  var order = [];
+  var mounted = new WeakMap();   // Element -> { name: true }
+  var live = [];                 // { name, el, ctx }
+  var bus = Object.create(null);
+  var booted = false;
+
+  function warn() {
+    if (!global.console || !console.warn) return;
+    var args = ['[hnp]'].concat(Array.prototype.slice.call(arguments));
+    console.warn.apply(console, args);
+  }
+
+  function reducedMotion() {
+    return !!(global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }
+
+  /* ---------- 事件总线 ---------- */
+  function on(evt, fn) {
+    (bus[evt] || (bus[evt] = [])).push(fn);
+    return function () { off(evt, fn); };
+  }
+
+  function off(evt, fn) {
+    var list = bus[evt];
+    if (!list) return;
+    var i = list.indexOf(fn);
+    if (i > -1) list.splice(i, 1);
+  }
+
+  function emit(evt, payload) {
+    (bus[evt] || []).slice().forEach(function (fn) {
+      try { fn(payload); } catch (e) { warn('订阅者出错：' + evt, e); }
+    });
+    (bus['*'] || []).slice().forEach(function (fn) {
+      try { fn({ type: evt, payload: payload }); } catch (e) { /* 通配订阅失败不影响主流程 */ }
+    });
+  }
+
+  /* ---------- 带命名空间的安全存储 ---------- */
+  function store(ns) {
+    var prefix = 'hnp:' + ns + ':';
+    function run(fn, fallback) {
+      try { return fn(); } catch (e) { return fallback; }
+    }
+    return {
+      get: function (k, d) {
+        var v = run(function () { return global.localStorage.getItem(prefix + k); }, null);
+        return v === null || v === undefined ? d : v;
+      },
+      set: function (k, v) { run(function () { global.localStorage.setItem(prefix + k, String(v)); }); },
+      remove: function (k) { run(function () { global.localStorage.removeItem(prefix + k); }); },
+      getJSON: function (k, d) {
+        var raw = this.get(k, null);
+        if (!raw) return d;
+        return run(function () { return JSON.parse(raw); }, d);
+      },
+      setJSON: function (k, v) { this.set(k, JSON.stringify(v)); }
+    };
+  }
+
+  /* ---------- 复制到剪贴板（含 execCommand 兜底） ---------- */
+  function copy(text) {
+    var done = false;
+    if (global.navigator && navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).catch(function () { fallback(); });
+      done = true;
+    }
+    if (!done) fallback();
+
+    function fallback() {
+      var ta = global.document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      global.document.body.appendChild(ta);
+      ta.select();
+      try { global.document.execCommand('copy'); } catch (e) { warn('复制失败', e); }
+      global.document.body.removeChild(ta);
+    }
+  }
+
+  /* ---------- 元素选项 ---------- */
+  function readOpts(el) {
+    var out = {};
+    if (!el || !el.attributes) return out;
+    for (var i = 0; i < el.attributes.length; i++) {
+      var a = el.attributes[i];
+      if (a.name.indexOf('data-hnp-') !== 0) continue;
+      var key = a.name.slice(9).replace(/-([a-z])/g, function (m, c) { return c.toUpperCase(); });
+      out[key] = a.value;
+    }
+    return out;
+  }
+
+  /* ---------- 上下文 ---------- */
+  function makeCtx(name, spec, el) {
+    var disposers = [];
+    var opts = {};
+    var defaults = spec.defaults || {};
+    var raw = readOpts(el);
+    Object.keys(defaults).forEach(function (k) { opts[k] = defaults[k]; });
+    Object.keys(raw).forEach(function (k) { opts[k] = raw[k]; });
+
+    var ctx = {
+      name: name,
+      el: el,
+      opts: opts,
+      document: global.document,
+      reducedMotion: reducedMotion(),
+      emit: emit,
+      store: store(name),
+      on: function (target, type, fn, opt) {
+        if (!target || !target.addEventListener) return fn;
+        target.addEventListener(type, fn, opt);
+        disposers.push(function () { target.removeEventListener(type, fn, opt); });
+        return fn;
+      },
+      every: function (ms, fn) {
+        var id = global.setInterval(fn, ms);
+        disposers.push(function () { global.clearInterval(id); });
+        return id;
+      },
+      later: function (ms, fn) {
+        var id = global.setTimeout(fn, ms);
+        disposers.push(function () { global.clearTimeout(id); });
+        return id;
+      },
+      observer: function (io, target) {
+        if (!io || !target) return;
+        io.observe(target);
+        disposers.push(function () { try { io.unobserve(target); } catch (e) {} });
+      },
+      dispose: function () {
+        var list = disposers.splice(0);
+        list.forEach(function (d) { try { d(); } catch (e) {} });
+      }
+    };
+    return ctx;
+  }
+
+  /* ---------- 注册 ---------- */
+  function define(name, spec) {
+    if (!name || typeof name !== 'string') {
+      warn('define 需要一个插件名');
+      return false;
+    }
+    if (!spec || typeof spec.mount !== 'function') {
+      warn('插件 "' + name + '" 缺少 mount 方法');
+      return false;
+    }
+    if (registry[name]) warn('插件 "' + name + '" 已被覆盖注册');
+    else order.push(name);
+    registry[name] = spec;
+    return true;
+  }
+
+  function defined(name) { return !!registry[name]; }
+  function plugins() { return order.slice(); }
+
+  /* ---------- 挂载 ---------- */
+  function mountOne(el, name) {
+    var spec = registry[name];
+    if (!spec) { warn('插件 "' + name + '" 未注册，已跳过'); return false; }
+
+    var set = mounted.get(el);
+    if (!set) { set = Object.create(null); mounted.set(el, set); }
+    if (set[name]) return false;              // 幂等：同一元素同一插件只挂一次
+
+    var ctx = makeCtx(name, spec, el);
+    try {
+      spec.mount(el, ctx);
+    } catch (e) {
+      warn('插件 "' + name + '" 挂载失败', e);
+      ctx.dispose();
+      return false;
+    }
+    set[name] = true;
+    live.push({ name: name, el: el, ctx: ctx });
+    emit('hnp:mount', { name: name, el: el });
+    return true;
+  }
+
+  function mount(root, options) {
+    var scope = root || global.document;
+    if (!scope || !scope.querySelectorAll) return 0;
+    var only = options && options.plugins ? options.plugins : null;
+    var hit = [];
+
+    if (scope.nodeType === 1 && scope.hasAttribute && scope.hasAttribute(ATTR)) hit.push(scope);
+    Array.prototype.forEach.call(scope.querySelectorAll('[' + ATTR + ']'), function (el) { hit.push(el); });
+
+    var count = 0;
+    hit.forEach(function (el) {
+      String(el.getAttribute(ATTR) || '').split(/\s+/).forEach(function (name) {
+        if (!name) return;
+        if (only && only.indexOf(name) === -1) return;
+        if (mountOne(el, name)) count++;
+      });
+    });
+    return count;
+  }
+
+  /* ---------- 卸载 ---------- */
+  function unmount(root, name) {
+    var scope = root || global.document;
+    var removed = 0;
+    live.slice().forEach(function (item) {
+      if (name && item.name !== name) return;
+      if (scope !== global.document && scope !== global.document.body &&
+          item.el !== scope && !scope.contains(item.el)) return;
+
+      var spec = registry[item.name];
+      try { if (spec && typeof spec.unmount === 'function') spec.unmount(item.el, item.ctx); } catch (e) { warn('插件 "' + item.name + '" 卸载失败', e); }
+      item.ctx.dispose();
+
+      var set = mounted.get(item.el);
+      if (set) delete set[item.name];
+
+      var i = live.indexOf(item);
+      if (i > -1) live.splice(i, 1);
+      removed++;
+      emit('hnp:unmount', { name: item.name, el: item.el });
+    });
+    return removed;
+  }
+
+  /* ---------- 自检信息（给 demo 与测试用） ---------- */
+  function inspect() {
+    var byName = {};
+    live.forEach(function (item) { byName[item.name] = (byName[item.name] || 0) + 1; });
+    return {
+      version: VERSION,
+      registered: plugins(),
+      installed: live.length,
+      byName: byName
+    };
+  }
+
+  /* ---------- 按名取用 ---------- */
+  function use(name) {
+    if (!registry[name]) warn('插件 "' + name + '" 未注册');
+    return { mount: function (root) { return mount(root, { plugins: [name] }); } };
+  }
+
+  /* ---------- 启动 ---------- */
+  function boot() {
+    if (booted) return;
+    booted = true;
+    var html = global.document.documentElement;
+    var manual = html && html.getAttribute('data-hnp-auto') === 'false';
+    var count = manual ? 0 : mount(global.document);
+    emit('hnp:ready', { version: VERSION, mounted: count, auto: !manual });
+  }
+
+  global.HNP = {
+    version: VERSION,
+    define: define,
+    defined: defined,
+    plugins: plugins,
+    use: use,
+    mount: mount,
+    unmount: unmount,
+    on: on,
+    off: off,
+    emit: emit,
+    store: store,
+    copy: copy,
+    inspect: inspect
+  };
+
+  if (global.document) {
+    if (global.document.readyState === 'loading') {
+      global.document.addEventListener('DOMContentLoaded', boot);
+    } else {
+      boot();
+    }
+  }
+}(typeof window !== 'undefined' ? window : this));
+
+</script>
+<script>
+/* HNP 插件 · theme — 深/浅色切换，记忆在 hnp:theme:* */
+(function () {
+  'use strict';
+  if (!window.HNP) return;
+
+  HNP.define('theme', {
+    defaults: { key: 'mode', dark: '深色', light: '浅色' },
+    mount: function (el, ctx) {
+      var root = document.documentElement;
+      var saved = ctx.store.get(ctx.opts.key, null);
+      if (saved === 'dark' || saved === 'light') root.setAttribute('data-theme', saved);
+
+      function paint() {
+        var dark = root.getAttribute('data-theme') !== 'light';
+        el.textContent = dark ? ctx.opts.light : ctx.opts.dark;
+        el.setAttribute('aria-pressed', dark ? 'true' : 'false');
+        el.setAttribute('title', dark ? '当前深色，点击切浅色' : '当前浅色，点击切深色');
+      }
+
+      paint();
+      ctx.on(el, 'click', function () {
+        var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        root.setAttribute('data-theme', next);
+        ctx.store.set(ctx.opts.key, next);
+        paint();
+        ctx.emit('theme:change', { theme: next });
+      });
+    }
+  });
+})();
+
+</script>
+<script>
+/* HNP 插件 · tone — 专业 / 通俗双版表达切换，作用于 [data-pro] / [data-plain] */
+(function () {
+  'use strict';
+  if (!window.HNP) return;
+
+  HNP.define('tone', {
+    defaults: { key: 'tone', pro: '专业版', plain: '通俗版' },
+    mount: function (el, ctx) {
+      var root = document.documentElement;
+      var saved = ctx.store.get(ctx.opts.key, null);
+      if (saved === 'pro' || saved === 'plain') root.setAttribute('data-tone', saved);
+
+      function paint() {
+        var plain = root.getAttribute('data-tone') === 'plain';
+        el.textContent = plain ? ctx.opts.pro : ctx.opts.plain;
+        el.setAttribute('aria-pressed', plain ? 'true' : 'false');
+        el.setAttribute('title', plain ? '当前通俗表达，点击切回专业' : '当前专业表达，点击切通俗');
+      }
+
+      paint();
+      ctx.on(el, 'click', function () {
+        var next = root.getAttribute('data-tone') === 'plain' ? 'pro' : 'plain';
+        root.setAttribute('data-tone', next);
+        ctx.store.set(ctx.opts.key, next);
+        paint();
+        ctx.emit('tone:change', { tone: next });
+      });
+    }
+  });
+})();
+
+</script>
+<script>
+/* HNP 插件 · toc — 目录跟随（scrollspy） */
+(function () {
+  'use strict';
+  if (!window.HNP) return;
+
+  HNP.define('toc', {
+    defaults: { offset: '150' },
+    mount: function (el, ctx) {
+      var links = Array.prototype.slice.call(el.querySelectorAll('a[href^="#"]'));
+      if (!links.length) return;
+
+      var secs = links.map(function (a) {
+        return document.getElementById(a.getAttribute('href').slice(1));
+      });
+      var offset = parseInt(ctx.opts.offset, 10) || 150;
+
+      function onScroll() {
+        var y = (window.scrollY || window.pageYOffset) + offset;
+        var idx = 0;
+        for (var i = 0; i < secs.length; i++) {
+          if (secs[i] && secs[i].offsetTop <= y) idx = i;
+        }
+        links.forEach(function (a, i) { a.classList.toggle('on', i === idx); });
+      }
+
+      ctx.on(window, 'scroll', onScroll, { passive: true });
+      ctx.on(window, 'resize', onScroll, { passive: true });
+      onScroll();
+
+      ctx.clearMarks = function () {
+        links.forEach(function (a) { a.classList.remove('on'); });
+      };
+    },
+    unmount: function (el, ctx) {
+      if (ctx.clearMarks) ctx.clearMarks();
+    }
+  });
+})();
+
+</script>
+<script>
+/* HNP 插件 · tabs — 标签页，支持方向键，容器内可有多组互不干扰 */
+(function () {
+  'use strict';
+  if (!window.HNP) return;
+
+  HNP.define('tabs', {
+    mount: function (el, ctx) {
+      var btns = Array.prototype.slice.call(el.querySelectorAll('.hnp-tab'));
+      var panes = Array.prototype.slice.call(el.querySelectorAll('.hnp-pane'));
+      if (!btns.length) return;
+
+      function select(i) {
+        btns.forEach(function (b) {
+          b.setAttribute('aria-selected', 'false');
+          b.setAttribute('tabindex', '-1');
+        });
+        panes.forEach(function (p) { p.classList.remove('on'); });
+        if (btns[i]) {
+          btns[i].setAttribute('aria-selected', 'true');
+          btns[i].setAttribute('tabindex', '0');
+        }
+        if (panes[i]) panes[i].classList.add('on');
+        ctx.emit('tabs:change', { index: i, el: el });
+      }
+
+      btns.forEach(function (btn, i) {
+        btn.setAttribute('role', 'tab');
+        ctx.on(btn, 'click', function () { select(i); });
+        ctx.on(btn, 'keydown', function (e) {
+          var step = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+          if (!step) return;
+          e.preventDefault();
+          var next = btns[(i + step + btns.length) % btns.length];
+          next.focus();
+          next.click();
+        });
+      });
+
+      select(0);
+    }
+  });
+})();
+
+</script>
+<script>
+/* HNP 插件 · filter — 标签筛选，作用域收窄到最近的 [data-hnp-scope] */
+(function () {
+  'use strict';
+  if (!window.HNP) return;
+
+  HNP.define('filter', {
+    defaults: { scope: '', key: 'tags' },
+    mount: function (el, ctx) {
+      var chips = Array.prototype.slice.call(el.querySelectorAll('.hnp-chip'));
+      if (!chips.length) return;
+
+      var zone = ctx.opts.scope
+        ? document.querySelector(ctx.opts.scope)
+        : (el.closest('[data-hnp-scope]') || document);
+      if (!zone) return;
+
+      var items = Array.prototype.slice.call(zone.querySelectorAll('[data-hnp-' + ctx.opts.key + ']'));
+
+      function apply(k) {
+        items.forEach(function (item) {
+          var tags = (item.getAttribute('data-hnp-' + ctx.opts.key) || '').split(/\s+/);
+          var hit = k === 'all' || tags.indexOf(k) > -1;
+          item.style.display = hit ? '' : 'none';
+        });
+        ctx.emit('filter:change', { key: k, shown: items.filter(function (i) { return i.style.display !== 'none'; }).length });
+      }
+
+      chips.forEach(function (chip) {
+        ctx.on(chip, 'click', function () {
+          chips.forEach(function (c) { c.classList.remove('on'); });
+          chip.classList.add('on');
+          apply(chip.getAttribute('data-k') || 'all');
+        });
+      });
+    }
+  });
+})();
+
+</script>
+<script>
+/* HNP 插件 · reveal — 渐入 / 数字滚动 / 条形生长；规则：宁可不动效，不可让内容消失 */
+(function () {
+  'use strict';
+  if (!window.HNP) return;
+
+  function countUp(node) {
+    var targets = node.matches && node.matches('[data-hnp-count]')
+      ? [node]
+      : Array.prototype.slice.call(node.querySelectorAll('[data-hnp-count]'));
+    targets.forEach(function (el) {
+      if (el.dataset.hnpDone) return;
+      el.dataset.hnpDone = '1';
+
+      var target = parseFloat(el.getAttribute('data-hnp-count'));
+      if (isNaN(target)) return;
+      var dec = parseInt(el.getAttribute('data-hnp-dec') || '0', 10);
+      var pre = el.getAttribute('data-hnp-pre') || '';
+      var suf = el.getAttribute('data-hnp-suf') || '';
+      var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (reduced) { el.textContent = pre + target.toFixed(dec) + suf; return; }
+
+      var t0 = null, dur = 1100, done = false;
+      var safety = setTimeout(finish, dur + 400);
+      function finish() {
+        if (done) return;
+        done = true;
+        clearTimeout(safety);
+        el.textContent = pre + target.toFixed(dec) + suf;
+      }
+      function tick(ts) {
+        if (done) return;
+        if (!t0) t0 = ts;
+        var p = Math.min((ts - t0) / dur, 1);
+        var e = 1 - Math.pow(1 - p, 3);
+        el.textContent = pre + (target * e).toFixed(dec) + suf;
+        if (p < 1) requestAnimationFrame(tick);
+        else finish();
+      }
+      requestAnimationFrame(tick);
+    });
+  }
+
+  function growBars(node) {
+    var bars = node.matches && node.matches('.hnp-bar')
+      ? [node]
+      : Array.prototype.slice.call(node.querySelectorAll('.hnp-bar'));
+    bars.forEach(function (bar) {
+      var w = bar.getAttribute('data-hnp-w');
+      if (w) bar.style.setProperty('--w', w);
+      bar.classList.add('in');
+    });
+  }
+
+  HNP.define('reveal', {
+    defaults: { delay: '1600' },
+    mount: function (el, ctx) {
+      var nodes = Array.prototype.slice.call(
+        el.querySelectorAll('.hnp-reveal, [data-hnp-count], .hnp-bar')
+      );
+      if (el.matches && el.matches('.hnp-reveal')) nodes.unshift(el);
+      if (!nodes.length) return;
+
+      function show(node) {
+        node.classList.add('in');
+        countUp(node);
+        growBars(node);
+      }
+
+      if (ctx.reducedMotion || !('IntersectionObserver' in window)) {
+        nodes.forEach(show);
+        return;
+      }
+
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          try { show(entry.target); } catch (e) { /* 单条失败不拖累其余 */ }
+          io.unobserve(entry.target);
+        });
+      }, { threshold: 0.06, rootMargin: '0px 0px -6% 0px' });
+
+      nodes.forEach(function (n) { ctx.observer(io, n); });
+
+      // 兜底：观察器未按期回调时，强制显示首屏内容
+      ctx.later(parseInt(ctx.opts.delay, 10) || 1600, function () {
+        var vh = window.innerHeight || 800;
+        nodes.forEach(function (n) {
+          if (n.classList.contains('in')) return;
+          if (n.getBoundingClientRect().top < vh * 1.05) show(n);
+        });
+      });
+    }
+  });
+})();
+
+</script>
+<script>
+/* HNP 插件 · compare — 前后对比滑块，支持拖拽与方向键 */
+(function () {
+  'use strict';
+  if (!window.HNP) return;
+
+  HNP.define('compare', {
+    mount: function (el, ctx) {
+      var handle = el.querySelector('.hnp-cmp__h');
+      if (!handle) return;
+
+      var dragging = false;
+      var last = 50;
+
+      function set(clientX) {
+        var rect = el.getBoundingClientRect();
+        if (!rect.width) return;
+        var p = Math.max(2, Math.min(98, ((clientX - rect.left) / rect.width) * 100));
+        last = p;
+        el.style.setProperty('--cut', p + '%');
+        handle.setAttribute('aria-valuenow', String(Math.round(p)));
+      }
+
+      handle.setAttribute('role', 'slider');
+      handle.setAttribute('tabindex', '0');
+      handle.setAttribute('aria-valuemin', '2');
+      handle.setAttribute('aria-valuemax', '98');
+      handle.setAttribute('aria-valuenow', '50');
+
+      ctx.on(handle, 'pointerdown', function (e) {
+        dragging = true;
+        try { handle.setPointerCapture(e.pointerId); } catch (err) { /* 某些环境不支持捕获 */ }
+        e.preventDefault();
+      });
+      ctx.on(handle, 'pointermove', function (e) { if (dragging) set(e.clientX); });
+      ctx.on(handle, 'pointerup', function () { dragging = false; });
+      ctx.on(handle, 'pointercancel', function () { dragging = false; });
+      ctx.on(el, 'pointerdown', function (e) { if (e.target === el) set(e.clientX); });
+
+      ctx.on(handle, 'keydown', function (e) {
+        var step = e.key === 'ArrowRight' ? 4 : e.key === 'ArrowLeft' ? -4 : 0;
+        if (!step) return;
+        e.preventDefault();
+        last = Math.max(2, Math.min(98, last + step));
+        el.style.setProperty('--cut', last + '%');
+        handle.setAttribute('aria-valuenow', String(Math.round(last)));
+      });
+    }
+  });
+})();
+
+</script>
+<script>
+/* HNP 插件 · decision — 决策卡：单选 + 备注 + 落库，状态随实例走，产出走事件 */
+(function () {
+  'use strict';
+  if (!window.HNP) return;
+
+  HNP.define('decision', {
+    mount: function (el, ctx) {
+      var opts = Array.prototype.slice.call(el.querySelectorAll('.hnp-dopt'));
+      var confirmBtn = el.querySelector('[data-act="confirm"]');
+      var out = el.querySelector('.hnp-dcard__out');
+      if (!opts.length) return;
+
+      var id = el.getAttribute('data-id') || ('D-' + Math.random().toString(36).slice(2, 7));
+      var title = el.getAttribute('data-title') || '';
+      var record = null;
+
+      ctx.on(el, 'click', function (e) {
+        var opt = e.target.closest('.hnp-dopt');
+        if (!opt) return;
+        opts.forEach(function (o) { o.classList.remove('sel'); });
+        opt.classList.add('sel');
+        ctx.emit('decision:select', { id: id, key: opt.getAttribute('data-key') });
+      });
+
+      if (confirmBtn) {
+        ctx.on(confirmBtn, 'click', function () {
+          var sel = el.querySelector('.hnp-dopt.sel');
+          var noteEl = el.querySelector('[data-note]');
+          record = {
+            id: id,
+            title: title,
+            choice: sel ? sel.getAttribute('data-key') : null,
+            label: sel ? sel.textContent.trim().slice(0, 40) : null,
+            note: noteEl ? (noteEl.value || null) : null,
+            at: new Date().toISOString()
+          };
+          if (out) out.textContent = record.choice ? ('已记：' + record.label) : '请先选一项';
+          el.style.borderColor = record.choice ? 'var(--jade)' : 'var(--red)';
+          ctx.emit('decision:confirm', record);
+        });
+      }
+
+      ctx.getRecord = function () { return record; };
+    }
+  });
+})();
+
+</script>
+<script>
+/* HNP 插件 · anno — 就地批注：选中即批，产出 JSON 与 kunpeng-ops annotations 台账对齐 */
+(function () {
+  'use strict';
+  if (!window.HNP) return;
+
+  var TYPES = [['agree', '认可'], ['reject', '否决'], ['hold', '悬置'], ['delegate', '代议'], ['note', '补充']];
+
+  function esc(v) {
+    return String(v == null ? '' : v).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  function labelOf(t) {
+    for (var i = 0; i < TYPES.length; i++) if (TYPES[i][0] === t) return TYPES[i][1];
+    return '补充';
+  }
+
+  function flash(btn, text) {
+    var old = btn.textContent;
+    btn.textContent = text;
+    setTimeout(function () { btn.textContent = old; }, 1500);
+  }
+
+  HNP.define('anno', {
+    mount: function (el, ctx) {
+      var doc = ctx.document;
+      var items = [];
+      var cur = null;
+      var typeSel = null;
+
+      /* ---------- 浮标 ---------- */
+      var pop = doc.createElement('div');
+      pop.className = 'hnp-anno-pop';
+      pop.innerHTML = '<button type="button">＋ 批注</button>';
+
+      /* ---------- 表单 ---------- */
+      var form = doc.createElement('div');
+      form.className = 'hnp-anno-form';
+      form.innerHTML =
+        '<div class="hnp-anno-form__q"></div>' +
+        '<div class="hnp-anno-types">' + TYPES.map(function (t) {
+          return '<button class="hnp-anno-type" type="button" data-t="' + t[0] + '">' + t[1] + '</button>';
+        }).join('') + '</div>' +
+        '<textarea rows="3" placeholder="写一句…（Ctrl+Enter 加入）"></textarea>' +
+        '<div class="hnp-anno-form__f">' +
+          '<button class="hnp-btn" type="button" data-a="cancel">取消</button>' +
+          '<button class="hnp-btn pri" type="button" data-a="save">加入批注</button>' +
+        '</div>';
+
+      /* ---------- 篮子 ---------- */
+      var basket = doc.createElement('div');
+      basket.className = 'hnp-anno-basket';
+      basket.innerHTML =
+        '<div class="hnp-anno-basket__h">批注 <b>0</b> 条 <i>展开</i></div>' +
+        '<div class="hnp-anno-basket__b"></div>' +
+        '<div class="hnp-anno-basket__f">' +
+          '<button class="hnp-btn pri" type="button" data-a="export">导出 JSON</button>' +
+          '<button class="hnp-btn" type="button" data-a="text">复制为文本</button>' +
+        '</div>';
+
+      doc.body.appendChild(pop);
+      doc.body.appendChild(form);
+      doc.body.appendChild(basket);
+
+      var qEl = form.querySelector('.hnp-anno-form__q');
+      var taEl = form.querySelector('textarea');
+
+      function hidePop() { pop.classList.remove('on'); }
+      function hideForm() { form.classList.remove('on'); }
+
+      ctx.nodes = [pop, form, basket];
+
+      /* ---------- 选中即批 ---------- */
+      ctx.on(doc, 'mouseup', function (e) {
+        if (form.contains(e.target) || pop.contains(e.target) || basket.contains(e.target)) return;
+        setTimeout(function () {
+          var sel = window.getSelection();
+          if (!sel || sel.isCollapsed || !sel.rangeCount) { hidePop(); return; }
+          var text = String(sel).replace(/\s+/g, ' ').trim();
+          if (text.length < 2) { hidePop(); return; }
+
+          var range = sel.getRangeAt(0);
+          var node = range.commonAncestorContainer;
+          if (node.nodeType === 3) node = node.parentNode;
+          var block = node.closest ? node.closest('[data-block]') : null;
+          if (!block) { hidePop(); return; }
+
+          var rect = range.getBoundingClientRect();
+          if (!rect || (!rect.width && !rect.height)) { hidePop(); return; }
+
+          cur = {
+            block: block.getAttribute('data-block'),
+            quote: text.slice(0, 90),
+            rect: [Math.round(rect.left), Math.round(rect.top), Math.round(rect.width), Math.round(rect.height)]
+          };
+
+          pop.style.left = (window.scrollX + rect.left + Math.max(0, rect.width / 2 - 36)) + 'px';
+          pop.style.top = (window.scrollY + rect.bottom + 7) + 'px';
+          pop.classList.add('on');
+          hideForm();
+        }, 12);
+      });
+
+      ctx.on(pop, 'click', function () {
+        if (!cur) return;
+        qEl.textContent = '「' + cur.quote + '」';
+        taEl.value = '';
+        typeSel = null;
+        Array.prototype.forEach.call(form.querySelectorAll('.hnp-anno-type'), function (b) { b.classList.remove('on'); });
+
+        var pr = pop.getBoundingClientRect();
+        var maxLeft = window.scrollX + doc.documentElement.clientWidth - 340;
+        form.style.left = Math.min(window.scrollX + pr.left, maxLeft) + 'px';
+        form.style.top = (window.scrollY + pr.bottom + 6) + 'px';
+        hidePop();
+        form.classList.add('on');
+        taEl.focus();
+      });
+
+      function save() {
+        var note = taEl.value.trim();
+        if (!note) { taEl.focus(); return; }
+        var item = {
+          id: 'A-' + (items.length + 1),
+          block: cur.block,
+          quote: cur.quote,
+          type: typeSel || 'note',
+          note: note,
+          rect: cur.rect,
+          at: new Date().toISOString()
+        };
+        items.push(item);
+        taEl.value = '';
+        hideForm();
+        render();
+        basket.classList.add('open');
+        ctx.emit('anno:add', item);
+      }
+
+      /* ---------- 渲染 ---------- */
+      function render() {
+        basket.querySelector('.hnp-anno-basket__h b').textContent = items.length;
+        basket.querySelector('.hnp-anno-basket__h i').textContent =
+          basket.classList.contains('open') ? '收起' : '展开';
+
+        var body = basket.querySelector('.hnp-anno-basket__b');
+        if (!items.length) {
+          body.innerHTML = '<div class="hnp-anno-item" style="color:var(--txt3)">还没有批注。选中页面上任意一句，点「＋ 批注」。</div>';
+          return;
+        }
+        body.innerHTML = items.map(function (it, i) {
+          return '<div class="hnp-anno-item">' +
+            '<button class="hnp-anno-item__x" type="button" data-i="' + i + '" title="删除">×</button>' +
+            '<div class="hnp-anno-item__m">' +
+              '<span class="hnp-anno-t" data-t="' + it.type + '">' + labelOf(it.type) + '</span>' +
+              '<span>' + esc(it.block) + '</span></div>' +
+            '<div class="hnp-anno-item__q">「' + esc(it.quote) + '」</div>' +
+            '<div class="hnp-anno-item__n">' + esc(it.note) + '</div>' +
+          '</div>';
+        }).join('');
+      }
+
+      ctx.on(form, 'click', function (e) {
+        var t = e.target.closest('.hnp-anno-type');
+        if (t) {
+          Array.prototype.forEach.call(form.querySelectorAll('.hnp-anno-type'), function (b) { b.classList.remove('on'); });
+          t.classList.add('on');
+          typeSel = t.getAttribute('data-t');
+          return;
+        }
+        var a = e.target.closest('[data-a]');
+        if (!a) return;
+        if (a.getAttribute('data-a') === 'cancel') hideForm();
+        else save();
+      });
+
+      ctx.on(basket, 'click', function (e) {
+        var x = e.target.closest('.hnp-anno-item__x');
+        if (x) {
+          var removed = items.splice(+x.getAttribute('data-i'), 1)[0];
+          render();
+          ctx.emit('anno:remove', removed);
+          return;
+        }
+        var a = e.target.closest('[data-a]');
+        if (!a) {
+          if (e.target.closest('.hnp-anno-basket__h')) {
+            basket.classList.toggle('open');
+            basket.querySelector('.hnp-anno-basket__h i').textContent =
+              basket.classList.contains('open') ? '收起' : '展开';
+          }
+          return;
+        }
+        if (a.getAttribute('data-a') === 'export') {
+          var payload = {
+            doc: doc.title,
+            annotations: items,
+            exportedAt: new Date().toISOString()
+          };
+          HNP.copy(JSON.stringify(payload, null, 2));
+          flash(a, '已复制 JSON');
+          ctx.emit('anno:export', payload);
+        } else {
+          HNP.copy(items.map(function (it, i) {
+            return (i + 1) + '. [' + labelOf(it.type) + '][' + it.block + '] 「' + it.quote + '」→ ' + it.note;
+          }).join('\n') || '（无批注）');
+          flash(a, '已复制文本');
+        }
+      });
+
+      ctx.on(taEl, 'keydown', function (e) {
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); save(); }
+        if (e.key === 'Escape') hideForm();
+      });
+      ctx.on(doc, 'keydown', function (e) {
+        if (e.key === 'Escape') { hidePop(); hideForm(); }
+      });
+
+      render();
+      ctx.getItems = function () { return items.slice(); };
+    },
+
+    unmount: function (el, ctx) {
+      (ctx.nodes || []).forEach(function (n) { if (n.parentNode) n.parentNode.removeChild(n); });
+      ctx.nodes = [];
+    }
+  });
+})();
+
+</script>
+<script>
+/* HNP 插件 · scrolly — 滚动叙事：滚动位置决定右侧图板显示哪一帧 */
+(function () {
+  'use strict';
+  if (!window.HNP) return;
+
+  HNP.define('scrolly', {
+    mount: function (el, ctx) {
+      var steps = Array.prototype.slice.call(el.querySelectorAll('.hnp-step'));
+      var graphic = el.querySelector('.hnp-scrolly__g');
+      if (!steps.length || !graphic) return;
+
+      var figs = Array.prototype.slice.call(graphic.querySelectorAll('[data-hnp-fig]'));
+
+      function activate(index) {
+        steps.forEach(function (s) { s.classList.remove('on'); });
+        if (steps[index]) steps[index].classList.add('on');
+        graphic.setAttribute('data-state', String(index + 1));
+        figs.forEach(function (f) {
+          f.style.display = f.getAttribute('data-hnp-fig') === String(index + 1) ? '' : 'none';
+        });
+        ctx.emit('scrolly:step', { index: index });
+      }
+
+      if (ctx.reducedMotion || !('IntersectionObserver' in window)) {
+        steps.forEach(function (s) { s.classList.add('on'); });
+        figs.forEach(function (f) { f.style.display = ''; });
+        return;
+      }
+
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          var i = steps.indexOf(entry.target);
+          if (i > -1) activate(i);
+        });
+      }, { rootMargin: '-45% 0px -45% 0px' });
+
+      steps.forEach(function (s) { ctx.observer(io, s); });
+      activate(0);
+    }
+  });
+})();
+
+</script>
+<script>
+/* HNP 插件 · timeline — 时间轴逐项点亮 */
+(function () {
+  'use strict';
+  if (!window.HNP) return;
+
+  HNP.define('timeline', {
+    mount: function (el, ctx) {
+      var nodes = Array.prototype.slice.call(el.querySelectorAll('.hnp-tl__i'));
+      if (!nodes.length) return;
+
+      if (ctx.reducedMotion || !('IntersectionObserver' in window)) {
+        nodes.forEach(function (n) { n.classList.add('on'); });
+        return;
+      }
+
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('on');
+          io.unobserve(entry.target);
+        });
+      }, { rootMargin: '-30% 0px -40% 0px' });
+
+      nodes.forEach(function (n) { ctx.observer(io, n); });
+    }
+  });
+})();
+
+</script>
+<script>
+/* HNP 插件 · copy-md — 把页面正文转成 Markdown 复制走 */
+(function () {
+  'use strict';
+  if (!window.HNP) return;
+
+  function mdTable(table) {
+    var rows = Array.prototype.slice.call(table.querySelectorAll('tr'));
+    if (!rows.length) return '';
+    var lines = rows.map(function (row) {
+      return '| ' + Array.prototype.slice.call(row.querySelectorAll('th,td')).map(function (c) {
+        return (c.textContent || '').replace(/\s+/g, ' ').trim();
+      }).join(' | ') + ' |';
+    });
+    var cols = rows[0].querySelectorAll('th').length;
+    lines.splice(1, 0, '|' + new Array(cols || 1).join(' --- |') + ' --- |');
+    return lines.join('\n');
+  }
+
+  function toMd(root) {
+    var out = [];
+    var nodes = root.querySelectorAll('h1,h2,h3,h4,p,li,figcaption,table,pre');
+    Array.prototype.forEach.call(nodes, function (n) {
+      if (n.closest('[data-hnp-skip]')) return;
+      var tag = n.tagName.toLowerCase();
+      var text = (n.textContent || '').replace(/\s+/g, ' ').trim();
+      if (!text) return;
+
+      if (tag === 'h1') out.push('# ' + text);
+      else if (tag === 'h2') out.push('\n## ' + text);
+      else if (tag === 'h3') out.push('\n### ' + text);
+      else if (tag === 'h4') out.push('\n#### ' + text);
+      else if (tag === 'li') out.push('- ' + text);
+      else if (tag === 'figcaption') out.push('> ' + text);
+      else if (tag === 'table') out.push(mdTable(n));
+      else if (tag === 'pre') out.push('```\n' + n.textContent.trim() + '\n```');
+      else out.push(text);
+    });
+    return out.join('\n').replace(/\n{3,}/g, '\n\n');
+  }
+
+  HNP.define('copy-md', {
+    defaults: { source: '#hnp-md-source' },
+    mount: function (el, ctx) {
+      ctx.on(el, 'click', function () {
+        var root = document.querySelector(ctx.opts.source) || document.querySelector('main') || document.body;
+        HNP.copy(toMd(root));
+        var old = el.textContent;
+        el.textContent = '已复制 Markdown';
+        setTimeout(function () { el.textContent = old; }, 1700);
+        ctx.emit('copy-md:done', { source: ctx.opts.source });
+      });
+    }
+  });
+})();
+
+</script>
+<script>
+  (function () {
+    var probe = document.getElementById('probe');
+    function show(label) {
+      probe.textContent = label + '\n' + JSON.stringify(HNP.inspect(), null, 2);
+    }
+
+    HNP.on('decision:confirm', function (rec) {
+      console.log('[decision:confirm]', rec);
+    });
+    HNP.on('anno:add', function (item) {
+      console.log('[anno:add]', item);
+    });
+
+    document.getElementById('btn-mount3').addEventListener('click', function () {
+      var before = HNP.inspect().installed;
+      HNP.mount(document);
+      HNP.mount(document);
+      HNP.mount(document);
+      var after = HNP.inspect().installed;
+      show('重复挂载三次：' + before + ' → ' + after + '（应相等）');
+    });
+
+    document.getElementById('btn-unmount').addEventListener('click', function () {
+      var n = HNP.unmount(document, 'tabs');
+      show('已卸载 tabs 实例数：' + n);
+    });
+
+    document.getElementById('btn-remount').addEventListener('click', function () {
+      HNP.use('tabs').mount(document);
+      show('已重新挂载 tabs');
+    });
+
+    document.getElementById('btn-boom').addEventListener('click', function () {
+      HNP.define('boom', { mount: function () { throw new Error('故意失败：验证降级'); } });
+      var box = document.createElement('div');
+      box.setAttribute('data-hnp', 'boom theme');
+      box.className = 'card';
+      box.textContent = '这个块同时挂了 boom（会抛错）与 theme（正常）——坏的那个只 warn。';
+      document.getElementById('s9').appendChild(box);
+      HNP.mount(document.getElementById('s9'));
+      show('坏插件已注入：boom 挂载失败、不计入 installed；同块的 theme 仍正常挂载（故 theme 计为 2）');
+    });
+
+    document.getElementById('btn-inspect').addEventListener('click', function () { show('HNP.inspect()'); });
+
+    HNP.on('hnp:ready', function (e) { show('自动挂载完成，挂载 ' + e.mounted + ' 个实例'); });
+  })();
+</script>
+</body>
+</html>
